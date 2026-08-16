@@ -4,13 +4,13 @@ import { getAuth, initializeAuth, browserLocalPersistence, indexedDBLocalPersist
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCJDkI1eW0HCJWSNF3MXf1Ikp2HJeBvR1E",
-  authDomain: "trackyourspent.firebaseapp.com",
-  projectId: "trackyourspent",
-  storageBucket: "trackyourspent.firebasestorage.app",
-  messagingSenderId: "104736479081",
-  appId: "1:104736479081:web:ed20d687b76bac82788ff8",
-  measurementId: "G-FH8G39QLFG"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase
