@@ -69,10 +69,32 @@ export default function App() {
             if (data.categories) setCategories(data.categories);
             if (data.settings) setSettings(data.settings);
           } else {
-            // First time login, init with defaults
-            setExpenses(generateSampleExpenses());
-            setCategories(DEFAULT_CATEGORIES);
-            setSettings(DEFAULT_SETTINGS);
+            // First time login, init with defaults, but attempt to migrate existing local storage data
+            try {
+              const localRawData = localStorage.getItem('daywise_expenses');
+              if (localRawData) {
+                const localData = JSON.parse(localRawData);
+                if (localData.expenses && Array.isArray(localData.expenses)) setExpenses(localData.expenses);
+                else setExpenses([]);
+                
+                if (localData.categories && Array.isArray(localData.categories)) setCategories(localData.categories);
+                else setCategories(DEFAULT_CATEGORIES);
+                
+                if (localData.settings) setSettings({ ...DEFAULT_SETTINGS, ...localData.settings });
+                else setSettings(DEFAULT_SETTINGS);
+                
+                // Clear the local storage after successful migration to prevent re-migrating
+                localStorage.removeItem('daywise_expenses');
+              } else {
+                setExpenses([]);
+                setCategories(DEFAULT_CATEGORIES);
+                setSettings(DEFAULT_SETTINGS);
+              }
+            } catch (err) {
+              setExpenses([]);
+              setCategories(DEFAULT_CATEGORIES);
+              setSettings(DEFAULT_SETTINGS);
+            }
           }
         } catch (e) {
           console.error("Error fetching user data", e);
