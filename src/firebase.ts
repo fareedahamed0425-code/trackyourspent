@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth, initializeAuth, browserLocalPersistence, indexedDBLocalPersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -16,7 +17,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Analytics safely (it might fail if blocked by adblockers, but we'll export it anyway)
+// Initialize Analytics safely
 let analytics;
 try {
   analytics = getAnalytics(app);
@@ -25,8 +26,8 @@ try {
 }
 
 export { analytics };
-// Explicitly initialize auth with local persistence to prevent refresh logouts
 export const auth = initializeAuth(app, {
   persistence: [indexedDBLocalPersistence, browserLocalPersistence]
 });
 export const db = getFirestore(app);
+export const storage = getStorage(app);

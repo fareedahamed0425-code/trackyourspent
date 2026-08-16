@@ -10,11 +10,19 @@ export interface Category {
   createdAt: string;
 }
 
+export interface StoredStatement {
+  id: string;
+  fileName: string;
+  fileUrl: string;
+  uploadDate: number;
+}
+
 export interface BankAccount {
   id: string;
   name: string; // e.g., "Chase Checking", "HDFC Bank"
   accountNumber?: string;
   color?: string; // For UI identification
+  storedStatements?: StoredStatement[]; // Permanent cloud references
   createdAt: number;
 }
 
