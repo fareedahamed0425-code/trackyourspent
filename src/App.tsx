@@ -32,21 +32,28 @@ import { SettingsView } from './components/SettingsView';
 import { ExpenseModal } from './components/ExpenseModal';
 import { LoginView } from './components/LoginView';
 
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { onAuthStateChanged, User, signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
 
 export default function App() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const activeTab = (location.pathname.substring(1) as ActiveTab) || 'dashboard';
+
+  const setActiveTab = (tab: ActiveTab) => {
+    navigate(`/${tab}`);
+  };
+
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [dataLoaded, setDataLoaded] = useState(false);
 
-  // 1. Core State Initialization
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
   const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
 
-  const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
   const [selectedDate, setSelectedDate] = useState<string>(getTodayDateString());
 
   // Modal State
@@ -396,136 +403,136 @@ export default function App() {
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <AnimatePresence mode="wait">
-          {activeTab === 'dashboard' && (
-            <motion.div
-              key="tab-dashboard"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.18 }}
-            >
-              <DashboardView
-                expenses={expenses}
-                categories={categories}
-                settings={settings}
-                onNavigateToTab={(tab) => setActiveTab(tab)}
-                onSelectDate={(date) => setSelectedDate(date)}
-                onOpenAddExpense={() => handleOpenAddExpense()}
-              />
-            </motion.div>
-          )}
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            
+            <Route path="/dashboard" element={
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.18 }}
+              >
+                <DashboardView
+                  expenses={expenses}
+                  categories={categories}
+                  settings={settings}
+                  onNavigateToTab={(tab) => setActiveTab(tab)}
+                  onSelectDate={(date) => setSelectedDate(date)}
+                  onOpenAddExpense={() => handleOpenAddExpense()}
+                />
+              </motion.div>
+            } />
 
-          {activeTab === 'daily' && (
-            <motion.div
-              key="tab-daily"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.18 }}
-            >
-              <DailyView
-                expenses={expenses}
-                categories={categories}
-                settings={settings}
-                selectedDate={selectedDate}
-                onSelectDate={setSelectedDate}
-                onOpenAddExpense={(defaultDate) => handleOpenAddExpense(defaultDate)}
-                onEditExpense={handleEditExpense}
-                onDeleteExpense={handleDeleteExpense}
-              />
-            </motion.div>
-          )}
+            <Route path="/daily" element={
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.18 }}
+              >
+                <DailyView
+                  expenses={expenses}
+                  categories={categories}
+                  settings={settings}
+                  selectedDate={selectedDate}
+                  onSelectDate={setSelectedDate}
+                  onOpenAddExpense={(defaultDate) => handleOpenAddExpense(defaultDate)}
+                  onEditExpense={handleEditExpense}
+                  onDeleteExpense={handleDeleteExpense}
+                />
+              </motion.div>
+            } />
 
-          {activeTab === 'categories' && (
-            <motion.div
-              key="tab-categories"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.18 }}
-            >
-              <CategoryManager
-                categories={categories}
-                expenses={expenses}
-                settings={settings}
-                onAddCategory={handleAddCategory}
-                onUpdateCategory={handleUpdateCategory}
-                onDeleteCategory={handleDeleteCategory}
-                onOpenAddExpenseWithCategory={(catId) => handleOpenAddExpense(undefined, catId)}
-                onEditExpense={handleEditExpense}
-                onDeleteExpense={handleDeleteExpense}
-              />
-            </motion.div>
-          )}
+            <Route path="/categories" element={
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.18 }}
+              >
+                <CategoryManager
+                  categories={categories}
+                  expenses={expenses}
+                  settings={settings}
+                  onAddCategory={handleAddCategory}
+                  onUpdateCategory={handleUpdateCategory}
+                  onDeleteCategory={handleDeleteCategory}
+                  onOpenAddExpenseWithCategory={(catId) => handleOpenAddExpense(undefined, catId)}
+                  onEditExpense={handleEditExpense}
+                  onDeleteExpense={handleDeleteExpense}
+                />
+              </motion.div>
+            } />
 
-          {activeTab === 'calculator' && (
-            <motion.div
-              key="tab-calculator"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.18 }}
-            >
-              <AutoCalculator
-                expenses={expenses}
-                categories={categories}
-                settings={settings}
-                onAddCalculatedExpense={handleAddCalculatedExpense}
-              />
-            </motion.div>
-          )}
+            <Route path="/calculator" element={
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.18 }}
+              >
+                <AutoCalculator
+                  expenses={expenses}
+                  categories={categories}
+                  settings={settings}
+                  onAddCalculatedExpense={handleAddCalculatedExpense}
+                />
+              </motion.div>
+            } />
 
-          {activeTab === 'history' && (
-            <motion.div
-              key="tab-history"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.18 }}
-            >
-              <HistorySection
-                expenses={expenses}
-                categories={categories}
-                settings={settings}
-                onEditExpense={handleEditExpense}
-                onDeleteExpense={handleDeleteExpense}
-              />
-            </motion.div>
-          )}
+            <Route path="/history" element={
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.18 }}
+              >
+                <HistorySection
+                  expenses={expenses}
+                  categories={categories}
+                  settings={settings}
+                  onEditExpense={handleEditExpense}
+                  onDeleteExpense={handleDeleteExpense}
+                />
+              </motion.div>
+            } />
 
-          {activeTab === 'export' && (
-            <motion.div
-              key="tab-export"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.18 }}
-            >
-              <ExportSection
-                expenses={expenses}
-                categories={categories}
-                settings={settings}
-                onRestoreData={handleRestoreData}
-              />
-            </motion.div>
-          )}
+            <Route path="/export" element={
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.18 }}
+              >
+                <ExportSection
+                  expenses={expenses}
+                  categories={categories}
+                  settings={settings}
+                  onRestoreData={handleRestoreData}
+                />
+              </motion.div>
+            } />
 
-          {activeTab === 'settings' && (
-            <motion.div
-              key="tab-settings"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.18 }}
-            >
-              <SettingsView
-                settings={settings}
-                onUpdateSettings={handleUpdateSettings}
-                onResetData={handleResetData}
-                onLoadSampleData={handleLoadSampleData}
-              />
-            </motion.div>
-          )}
+            <Route path="/settings" element={
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.18 }}
+              >
+                <SettingsView
+                  settings={settings}
+                  onUpdateSettings={handleUpdateSettings}
+                  onResetData={handleResetData}
+                  onLoadSampleData={handleLoadSampleData}
+                />
+              </motion.div>
+            } />
+
+            {/* Catch-all route for unknown tabs */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
         </AnimatePresence>
       </main>
 
