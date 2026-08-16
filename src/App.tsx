@@ -61,6 +61,7 @@ export default function App() {
       setUser(currentUser);
       if (currentUser) {
         // Fetch data from Firestore
+        let fetchSuccess = false;
         try {
           const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
           if (userDoc.exists()) {
@@ -96,10 +97,15 @@ export default function App() {
               setSettings(DEFAULT_SETTINGS);
             }
           }
-        } catch (e) {
+          fetchSuccess = true;
+        } catch (e: any) {
           console.error("Error fetching user data", e);
+          alert('Failed to load your data from the cloud: ' + e.message);
         }
-        setDataLoaded(true);
+        
+        if (fetchSuccess) {
+          setDataLoaded(true);
+        }
       } else {
         setDataLoaded(false);
       }
@@ -118,8 +124,12 @@ export default function App() {
           categories,
           settings
         }, { merge: true });
-      } catch (e) {
+      } catch (e: any) {
         console.error('Failed to save to cloud', e);
+        // Only alert if it's a permission issue or quota issue to not spam the user
+        if (e.message?.includes('permission')) {
+          alert('Save failed: Database permissions error.');
+        }
       }
     };
     
