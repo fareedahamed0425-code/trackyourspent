@@ -1,10 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { BankAccount, Expense, Category, UserSettings } from '../types';
-import { Building2, Plus, ArrowRight, Trash2, Wallet, History, FileText, Upload, DownloadCloud, Loader2 } from 'lucide-react';
+import { Building2, Plus, ArrowRight, Trash2, Wallet, History, FileText } from 'lucide-react';
 import { formatCurrency } from '../utils/helpers';
 import { StatementReconciler } from './StatementReconciler';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage, auth } from '../firebase';
 
 interface BankManagerProps {
   bankAccounts: BankAccount[];
@@ -30,80 +28,28 @@ export function BankManager({
   const [selectedBankId, setSelectedBankId] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [isReconciling, setIsReconciling] = useState(false);
-  const [isUploadingPdf, setIsUploadingPdf] = useState(false);
-  const pdfInputRef = useRef<HTMLInputElement>(null);
   
   const [newBankName, setNewBankName] = useState('');
   const [newBankAccountNum, setNewBankAccountNum] = useState('');
-  const [newBankColor, setNewBankColor] = useState('#3B82F6');
+  const [newBankColor, setNewBankColor] = useState('#3b82f6');
 
   const selectedBank = bankAccounts.find(b => b.id === selectedBankId);
   const bankExpenses = expenses.filter(e => e.bankAccountId === selectedBankId);
   const bankTotal = bankExpenses.reduce((sum, e) => sum + e.amount, 0);
 
-  const handleCreateBank = (e: React.FormEvent) => {
+  const handleAddBank = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newBankName) return;
-    
+    if (!newBankName.trim()) return;
+
     onAddBank({
-      name: newBankName,
-      accountNumber: newBankAccountNum,
-      color: newBankColor
+      name: newBankName.trim(),
+      accountNumber: newBankAccountNum.trim() || undefined,
+      color: newBankColor,
     });
-    
+
     setNewBankName('');
     setNewBankAccountNum('');
     setShowAddModal(false);
-  };
-
-  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !selectedBank || !auth.currentUser) return;
-    
-    // Check if it's a valid file size (e.g. under 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      alert("File is too large. Please upload files under 10MB.");
-      return;
-    }
-
-    try {
-      setIsUploadingPdf(true);
-      
-      const fileId = `stmt-${Date.now()}`;
-      const storageRef = ref(storage, `users/${auth.currentUser.uid}/banks/${selectedBank.id}/${fileId}_${file.name}`);
-      
-      // Upload
-      await uploadBytes(storageRef, file);
-      
-      // Get URL
-      const downloadUrl = await getDownloadURL(storageRef);
-      
-      // Update Bank Account
-      const newStatement = {
-        id: fileId,
-        fileName: file.name,
-        fileUrl: downloadUrl,
-        uploadDate: Date.now()
-      };
-      
-      const updatedBank = {
-        ...selectedBank,
-        storedStatements: [...(selectedBank.storedStatements || []), newStatement]
-      };
-      
-      onUpdateBank(updatedBank);
-      
-    } catch (err: any) {
-      console.error("PDF Upload Failed:", err);
-      if (err.message?.includes('unauthorized')) {
-        alert("Upload blocked: Please enable Firebase Storage in your Firebase Console and set security rules to allow uploads.");
-      } else {
-        alert("Failed to upload statement: " + err.message);
-      }
-    } finally {
-      setIsUploadingPdf(false);
-      if (pdfInputRef.current) pdfInputRef.current.value = '';
-    }
   };
 
   if (isReconciling && selectedBankId) {
@@ -120,138 +66,91 @@ export function BankManager({
 
   if (selectedBank) {
     return (
-      <div className="space-y-6">
-        <button onClick={() => setSelectedBankId(null)} className="text-gray-400 hover:text-white flex items-center gap-2 mb-4">
+      <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4">
+        <button 
+          onClick={() => setSelectedBankId(null)}
+          className="text-gray-400 hover:text-white flex items-center gap-2 mb-6"
+        >
           <ArrowRight className="rotate-180" size={20} /> Back to Banks
         </button>
 
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 sm:p-8 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-2" style={{ backgroundColor: selectedBank.color || '#3b82f6' }}></div>
-          <div className="flex justify-between items-start mb-6">
-            <div>
-              <h2 className="text-3xl font-bold text-white mb-2">{selectedBank.name}</h2>
-              {selectedBank.accountNumber && (
-                <p className="text-gray-400 font-mono">**** {selectedBank.accountNumber.slice(-4)}</p>
-              )}
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
+          <div className="flex justify-between items-start mb-8">
+            <div className="flex items-center gap-4">
+              <div 
+                className="w-16 h-16 rounded-2xl flex items-center justify-center text-white"
+                style={{ backgroundColor: selectedBank.color || '#3b82f6' }}
+              >
+                <Building2 size={32} />
+              </div>
+              <div>
+                <h2 className="text-3xl font-bold text-white">{selectedBank.name}</h2>
+                {selectedBank.accountNumber && (
+                  <p className="text-gray-400 mt-1 font-mono">•••• {selectedBank.accountNumber}</p>
+                )}
+              </div>
             </div>
-            <button onClick={() => {
-              if (confirm('Delete this bank account? Expenses will remain but lose their link to this bank.')) {
-                onDeleteBank(selectedBank.id);
-                setSelectedBankId(null);
-              }
-            }} className="p-2 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors">
+            
+            <button 
+              onClick={() => {
+                if(confirm('Are you sure you want to remove this bank? (Expenses will remain but lose their bank link)')) {
+                  onDeleteBank(selectedBank.id);
+                  setSelectedBankId(null);
+                }
+              }}
+              className="p-3 text-red-400 hover:bg-red-400/10 rounded-xl transition-colors"
+            >
               <Trash2 size={20} />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="col-span-1 md:col-span-1 bg-black/20 rounded-2xl p-6 border border-white/5 flex flex-col justify-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="bg-black/20 rounded-2xl p-6 border border-white/5">
               <p className="text-gray-400 text-sm font-medium mb-1">Total Sorted Expenses</p>
-              <p className="text-3xl font-bold text-white truncate">{formatCurrency(bankTotal, settings.currencySymbol)}</p>
+              <p className="text-3xl font-bold text-white">{formatCurrency(bankTotal, settings.currencySymbol)}</p>
             </div>
             
-            <div className="col-span-1 md:col-span-2 bg-blue-500/10 rounded-2xl p-6 border border-blue-500/20 flex flex-col justify-center items-start">
-              <h3 className="text-blue-100 font-medium mb-2">Statement Tools</h3>
-              <div className="flex flex-wrap gap-3">
-                <button 
-                  onClick={() => setIsReconciling(true)}
-                  className="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition-colors flex items-center gap-2 text-sm"
-                >
-                  <FileText size={18} /> Smart Sort CSV
-                </button>
-                
-                <input 
-                  type="file" 
-                  accept=".pdf,image/*" 
-                  className="hidden" 
-                  ref={pdfInputRef} 
-                  onChange={handlePdfUpload} 
-                />
-                <button 
-                  onClick={() => pdfInputRef.current?.click()}
-                  disabled={isUploadingPdf}
-                  className="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl font-medium transition-colors flex items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-wait"
-                >
-                  {isUploadingPdf ? <Loader2 className="animate-spin" size={18} /> : <Upload size={18} />}
-                  Store PDF/Receipt
-                </button>
-              </div>
+            <div className="bg-blue-500/10 rounded-2xl p-6 border border-blue-500/20 flex flex-col justify-center items-start">
+              <h3 className="text-blue-100 font-medium mb-2">Have a bank statement?</h3>
+              <button 
+                onClick={() => setIsReconciling(true)}
+                className="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition-colors flex items-center gap-2 text-sm"
+              >
+                <FileText size={18} /> Upload CSV/PDF & Sort
+              </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Left Column: Expenses */}
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-4">Linked Expenses</h3>
-              {bankExpenses.length === 0 ? (
-                <div className="text-center py-12 text-gray-500 bg-black/20 rounded-2xl border border-white/5">
-                  <History className="mx-auto mb-3 opacity-50" size={32} />
-                  <p>No expenses linked to this bank yet.</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {bankExpenses.map(expense => {
-                    const category = categories.find(c => c.id === expense.categoryId);
-                    return (
-                      <div key={expense.id} className="flex justify-between items-center p-4 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 transition-colors">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style={{ backgroundColor: category?.color + '20' }}>
-                            {category?.icon}
-                          </div>
-                          <div>
-                            <p className="text-white font-medium">{expense.title}</p>
-                            <p className="text-sm text-gray-400">{expense.date}</p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-red-400 font-bold">{formatCurrency(expense.amount, settings.currencySymbol)}</p>
-                          <p className="text-xs text-gray-500 truncate max-w-[80px]">{category?.name}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+          <h3 className="text-xl font-semibold text-white mb-4">Linked Expenses</h3>
+          {bankExpenses.length === 0 ? (
+            <div className="text-center py-12 text-gray-500 bg-black/20 rounded-2xl border border-white/5">
+              <History className="mx-auto mb-3 opacity-50" size={32} />
+              <p>No expenses linked to this bank yet.</p>
             </div>
-
-            {/* Right Column: Stored Statements */}
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-4 flex items-center justify-between">
-                Stored Statements
-                <span className="text-xs font-medium px-2 py-1 bg-white/10 rounded-md text-gray-400">{selectedBank.storedStatements?.length || 0} Files</span>
-              </h3>
-              
-              {(!selectedBank.storedStatements || selectedBank.storedStatements.length === 0) ? (
-                <div className="text-center py-12 text-gray-500 bg-black/20 rounded-2xl border border-white/5">
-                  <DownloadCloud className="mx-auto mb-3 opacity-50" size={32} />
-                  <p>No raw statements stored yet.</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {selectedBank.storedStatements.sort((a, b) => b.uploadDate - a.uploadDate).map(stmt => (
-                    <a 
-                      key={stmt.id} 
-                      href={stmt.fileUrl} 
-                      target="_blank" 
-                      rel="noreferrer"
-                      className="flex justify-between items-center p-4 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 transition-colors group"
-                    >
-                      <div className="flex items-center gap-4 overflow-hidden">
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-blue-400 bg-blue-400/10 shrink-0 group-hover:bg-blue-400 group-hover:text-white transition-colors">
-                          <FileText size={20} />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-white font-medium truncate">{stmt.fileName}</p>
-                          <p className="text-xs text-gray-400">{new Date(stmt.uploadDate).toLocaleDateString()}</p>
-                        </div>
+          ) : (
+            <div className="space-y-3">
+              {bankExpenses.map(expense => {
+                const category = categories.find(c => c.id === expense.categoryId);
+                return (
+                  <div key={expense.id} className="flex justify-between items-center p-4 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style={{ backgroundColor: category?.color + '20' }}>
+                        {category?.icon}
                       </div>
-                      <ArrowRight size={16} className="text-gray-500 group-hover:text-white shrink-0 ml-2" />
-                    </a>
-                  ))}
-                </div>
-              )}
+                      <div>
+                        <p className="text-white font-medium">{expense.title}</p>
+                        <p className="text-sm text-gray-400">{expense.date}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-red-400 font-bold">{formatCurrency(expense.amount, settings.currencySymbol)}</p>
+                      <p className="text-xs text-gray-500">{category?.name}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          </div>
+          )}
         </div>
       </div>
     );

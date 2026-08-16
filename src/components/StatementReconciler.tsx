@@ -1,9 +1,12 @@
 import React, { useState, useRef } from 'react';
 import Papa from 'papaparse';
+import * as pdfjsLib from 'pdfjs-dist';
 import { Expense, Category, UserSettings, PaymentMethod } from '../types';
-import { Upload, Check, Trash2, ArrowRight, ChevronRight } from 'lucide-react';
+import { Upload, Check, Trash2, ArrowRight, ChevronRight, Loader2 } from 'lucide-react';
 import { formatCurrency } from '../utils/helpers';
 import { getTodayDateString } from '../utils/storage';
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
 
 interface StatementReconcilerProps {
   bankId: string;
@@ -25,8 +28,9 @@ interface ProcessedTransaction {
 export function StatementReconciler({ bankId, categories, settings, onSaveExpense, onClose }: StatementReconcilerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   
-  // Mapping State
+  // Mapping State (for CSV)
   const [headers, setHeaders] = useState<string[]>([]);
   const [dateCol, setDateCol] = useState<string>('');
   const [amountCol, setAmountCol] = useState<string>('');
@@ -37,10 +41,24 @@ export function StatementReconciler({ bankId, categories, settings, onSaveExpens
   const [transactions, setTransactions] = useState<ProcessedTransaction[]>([]);
   const [step, setStep] = useState<'upload' | 'mapping' | 'reconcile'>('upload');
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
+    if (!selectedFile) return;
+    
+    setFile(selectedFile);
+    
+    if (selectedFile.name.toLowerCase().endsWith('.pdf')) {
+      setIsProcessing(true);
+      try {
+        await processPDF(selectedFile);
+      } catch (err) {
+        console.error("PDF Processing failed", err);
+        alert("Could not parse PDF. Please try a CSV file instead.");
+        setStep('upload');
+      } finally {
+        setIsProcessing(false);
+      }
+    } else {
       Papa.parse(selectedFile, {
         header: true,
         skipEmptyLines: true,
@@ -52,6 +70,68 @@ export function StatementReconciler({ bankId, categories, settings, onSaveExpens
           }
         }
       });
+    }
+  };
+
+  const processPDF = async (pdfFile: File) => {
+    const arrayBuffer = await pdfFile.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+    const numPages = pdf.numPages;
+    let extractedTxns: ProcessedTransaction[] = [];
+    let txnIndex = 0;
+
+    for (let i = 1; i <= numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      
+      // A very basic heuristic: join all strings with spaces
+      const fullText = content.items.map((item: any) => item.str).join(' ');
+      
+      // Look for patterns like DD/MM/YYYY or DD-MMM followed by text and then a number
+      // This is a naive split by common date formats to find lines.
+      // We will try to find lines that contain a date and a number.
+      // Since PDF text extraction can be messy, we'll try to find chunks that look like transactions.
+      const lines = fullText.split(/(?=\b\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b|\b\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\b)/i);
+      
+      for (const line of lines) {
+        // Extract Amount: look for last number in the string
+        const amtMatch = line.match(/[\d,]+\.\d{2}\b(?!.*[\d,]+\.\d{2}\b)/);
+        if (!amtMatch) continue;
+        
+        const rawAmt = amtMatch[0].replace(/,/g, '');
+        const amount = parseFloat(rawAmt);
+        if (isNaN(amount) || amount <= 0) continue;
+
+        // Try to extract Date
+        let date = getTodayDateString();
+        const dateMatch = line.match(/\b\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b|\b\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\b/i);
+        if (dateMatch) {
+          try {
+            const parsedD = new Date(dateMatch[0]);
+            if (!isNaN(parsedD.getTime())) date = parsedD.toISOString().split('T')[0];
+          } catch(e) {}
+        }
+
+        // Title is the rest of the string
+        let title = line.replace(amtMatch[0], '').replace(dateMatch ? dateMatch[0] : '', '').trim();
+        if (title.length < 3) continue; // Skip noise
+        if (title.length > 50) title = title.substring(0, 50);
+
+        extractedTxns.push({
+          id: `pdf-txn-${txnIndex++}`,
+          date,
+          amount,
+          title,
+          status: 'pending'
+        });
+      }
+    }
+
+    if (extractedTxns.length > 0) {
+      setTransactions(extractedTxns);
+      setStep('reconcile');
+    } else {
+      throw new Error("No transactions found matching expected patterns.");
     }
   };
 
@@ -131,16 +211,17 @@ export function StatementReconciler({ bankId, categories, settings, onSaveExpens
           </p>
           <input 
             type="file" 
-            accept=".csv" 
+            accept=".csv,.pdf" 
             className="hidden" 
             ref={fileInputRef} 
             onChange={handleFileUpload} 
           />
           <button 
             onClick={() => fileInputRef.current?.click()}
-            className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-medium transition-colors"
+            disabled={isProcessing}
+            className="px-6 py-3 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white rounded-xl font-medium transition-colors flex items-center justify-center gap-2 mx-auto"
           >
-            Select CSV File
+            {isProcessing ? <Loader2 className="animate-spin" size={20} /> : "Select Statement File"}
           </button>
         </div>
       )}
