@@ -137,15 +137,15 @@ export const ExportSection: React.FC<ExportSectionProps> = ({
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12">
       {/* Header Card */}
-      <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+      <div className="bg-[#0f0f0f] rounded-3xl p-6 shadow-2xl border border-[#1a1a1a]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-2xl bg-[#141414] border border-[#262626] text-[#c4b5a1] flex items-center justify-center">
               <Download className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-900">Download & Export Reports</h2>
-              <p className="text-xs text-slate-500">
+              <h2 className="text-xl font-bold text-[#e5e5e5]">Download & Export Reports</h2>
+              <p className="text-xs text-[#e5e5e5]/50 mt-1">
                 Download your day-wise expense records at any time as CSV, PDF/Print, or JSON backup
               </p>
             </div>
@@ -155,25 +155,25 @@ export const ExportSection: React.FC<ExportSectionProps> = ({
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="flex items-center gap-2 px-3.5 py-2 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-semibold"
+              className="flex items-center gap-2 px-3.5 py-2 bg-emerald-950/30 border border-emerald-900/50 text-emerald-400 rounded-xl text-xs font-semibold"
             >
-              <CheckCircle className="w-4 h-4 text-emerald-600" />
+              <CheckCircle className="w-4 h-4" />
               <span>{toastMessage}</span>
             </motion.div>
           )}
         </div>
 
         {/* Filter Configuration for Export */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6 pt-5 border-t border-slate-100">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6 pt-5 border-t border-[#1a1a1a]">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+            <label className="block text-[10px] uppercase tracking-wider font-semibold text-[#e5e5e5]/60 mb-2">
               Select Time Range
             </label>
             <select
               id="export-date-range-select"
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value as unknown as typeof dateRange)}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2.5 bg-[#141414] border border-[#222222] rounded-xl text-xs text-[#e5e5e5] focus:outline-hidden focus:border-[#c4b5a1] focus:ring-1 focus:ring-[#c4b5a1]/50 transition-all"
             >
               <option value="all">All Expenses ({expenses.length} total)</option>
               <option value="today">Today Only</option>
@@ -186,35 +186,35 @@ export const ExportSection: React.FC<ExportSectionProps> = ({
 
           {dateRange === 'custom' ? (
             <div className="flex items-center gap-2">
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-700 mb-1">From Date</label>
+              <div className="flex-1">
+                <label className="block text-[10px] uppercase tracking-wider font-semibold text-[#e5e5e5]/60 mb-2">From Date</label>
                 <input
                   type="date"
                   value={customStart}
                   onChange={(e) => setCustomStart(e.target.value)}
-                  className="px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800"
+                  className="w-full px-2 py-2 bg-[#141414] border border-[#222222] rounded-xl text-xs text-[#e5e5e5] [color-scheme:dark]"
                 />
               </div>
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-700 mb-1">To Date</label>
+              <div className="flex-1">
+                <label className="block text-[10px] uppercase tracking-wider font-semibold text-[#e5e5e5]/60 mb-2">To Date</label>
                 <input
                   type="date"
                   value={customEnd}
                   onChange={(e) => setCustomEnd(e.target.value)}
-                  className="px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800"
+                  className="w-full px-2 py-2 bg-[#141414] border border-[#222222] rounded-xl text-xs text-[#e5e5e5] [color-scheme:dark]"
                 />
               </div>
             </div>
           ) : (
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+              <label className="block text-[10px] uppercase tracking-wider font-semibold text-[#e5e5e5]/60 mb-2">
                 Filter by Category
               </label>
               <select
                 id="export-category-select"
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2.5 bg-[#141414] border border-[#222222] rounded-xl text-xs text-[#e5e5e5] focus:outline-hidden focus:border-[#c4b5a1] focus:ring-1 focus:ring-[#c4b5a1]/50 transition-all"
               >
                 <option value="all">All Categories</option>
                 {categories.map((c) => (
@@ -227,14 +227,14 @@ export const ExportSection: React.FC<ExportSectionProps> = ({
           )}
 
           {/* Export Payload Overview */}
-          <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex items-center justify-between">
+          <div className="bg-[#141414] p-3 rounded-2xl border border-[#262626] flex items-center justify-between h-[66px] self-end">
             <div>
-              <div className="text-[10px] uppercase font-bold text-slate-400">Ready to Export</div>
-              <div className="text-sm font-bold text-slate-800">
+              <div className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#c4b5a1]/60">Ready to Export</div>
+              <div className="text-sm font-bold text-[#e5e5e5]">
                 {filteredForExport.length} items ({formatCurrency(exportTotal, settings.currencySymbol)})
               </div>
             </div>
-            <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-1 rounded-lg font-semibold">
+            <span className="text-[10px] uppercase tracking-wider bg-[#c4b5a1]/10 text-[#c4b5a1] px-2.5 py-1 rounded-md font-bold border border-[#c4b5a1]/20">
               Ready
             </span>
           </div>
@@ -244,13 +244,13 @@ export const ExportSection: React.FC<ExportSectionProps> = ({
       {/* 3 Download Action Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {/* CSV Download Card */}
-        <div className="bg-white rounded-3xl p-6 shadow-2xs border border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-[#0f0f0f] rounded-3xl p-6 shadow-2xl border border-[#1a1a1a] hover:border-[#c4b5a1]/30 transition-all flex flex-col justify-between group">
           <div>
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-[#141414] border border-[#262626] text-[#c4b5a1] flex items-center justify-center mb-4 group-hover:bg-[#c4b5a1]/10 transition-colors">
               <FileSpreadsheet className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-base text-slate-900">CSV Spreadsheet</h3>
-            <p className="text-xs text-slate-500 mt-1">
+            <h3 className="font-bold text-base text-[#e5e5e5]">CSV Spreadsheet</h3>
+            <p className="text-xs text-[#e5e5e5]/50 mt-1">
               Standard comma-separated table with Day, Date, Item, Category, Amount, and Payment details.
             </p>
           </div>
@@ -259,21 +259,21 @@ export const ExportSection: React.FC<ExportSectionProps> = ({
             id="export-download-csv-btn"
             onClick={handleDownloadCSV}
             disabled={filteredForExport.length === 0}
-            className="mt-6 w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 shadow-xs transition-all"
+            className="mt-6 w-full py-2.5 px-4 bg-[#141414] border border-[#222222] hover:bg-[#c4b5a1] hover:text-[#0a0a0a] hover:border-[#c4b5a1] disabled:opacity-50 disabled:pointer-events-none text-[#e5e5e5] rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
             <Download className="w-4 h-4" />
-            <span>Download CSV (.csv)</span>
+            <span>Download CSV</span>
           </button>
         </div>
 
         {/* Printable / PDF Report */}
-        <div className="bg-white rounded-3xl p-6 shadow-2xs border border-slate-200 hover:border-indigo-300 hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-[#0f0f0f] rounded-3xl p-6 shadow-2xl border border-[#1a1a1a] hover:border-[#c4b5a1]/30 transition-all flex flex-col justify-between group">
           <div>
-            <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-[#141414] border border-[#262626] text-[#c4b5a1] flex items-center justify-center mb-4 group-hover:bg-[#c4b5a1]/10 transition-colors">
               <Printer className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-base text-slate-900">Printable Statement / PDF</h3>
-            <p className="text-xs text-slate-500 mt-1">
+            <h3 className="font-bold text-base text-[#e5e5e5]">Printable Statement</h3>
+            <p className="text-xs text-[#e5e5e5]/50 mt-1">
               Generates a clean, high-contrast formal printable ledger report with day-wise group headers.
             </p>
           </div>
@@ -282,21 +282,21 @@ export const ExportSection: React.FC<ExportSectionProps> = ({
             id="export-print-report-btn"
             onClick={handlePrintReport}
             disabled={filteredForExport.length === 0}
-            className="mt-6 w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 shadow-xs transition-all"
+            className="mt-6 w-full py-2.5 px-4 bg-[#141414] border border-[#222222] hover:bg-[#c4b5a1] hover:text-[#0a0a0a] hover:border-[#c4b5a1] disabled:opacity-50 disabled:pointer-events-none text-[#e5e5e5] rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
             <Printer className="w-4 h-4" />
-            <span>Print / Save PDF</span>
+            <span>Print / PDF</span>
           </button>
         </div>
 
         {/* JSON Backup & Restore */}
-        <div className="bg-white rounded-3xl p-6 shadow-2xs border border-slate-200 hover:border-cyan-300 hover:shadow-md transition-all flex flex-col justify-between">
+        <div className="bg-[#0f0f0f] rounded-3xl p-6 shadow-2xl border border-[#1a1a1a] hover:border-[#c4b5a1]/30 transition-all flex flex-col justify-between group">
           <div>
-            <div className="w-12 h-12 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-[#141414] border border-[#262626] text-[#c4b5a1] flex items-center justify-center mb-4 group-hover:bg-[#c4b5a1]/10 transition-colors">
               <FileJson className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-base text-slate-900">JSON Backup & Restore</h3>
-            <p className="text-xs text-slate-500 mt-1">
+            <h3 className="font-bold text-base text-[#e5e5e5]">JSON Backup & Restore</h3>
+            <p className="text-xs text-[#e5e5e5]/50 mt-1">
               Export complete structured JSON state or restore from an earlier backup anytime.
             </p>
           </div>
@@ -306,13 +306,13 @@ export const ExportSection: React.FC<ExportSectionProps> = ({
               id="export-download-json-btn"
               onClick={handleDownloadJSON}
               disabled={filteredForExport.length === 0}
-              className="flex-1 py-2.5 px-3 bg-cyan-600 hover:bg-cyan-700 disabled:bg-slate-200 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs transition-all"
+              className="flex-1 py-2.5 px-3 bg-[#c4b5a1] hover:bg-[#d8ccbc] disabled:opacity-50 disabled:pointer-events-none text-[#0a0a0a] rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Backup JSON</span>
+              <span>Backup</span>
             </button>
 
-            <label className="flex-1 py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-colors">
+            <label className="flex-1 py-2.5 px-3 bg-[#141414] hover:bg-[#1a1a1a] border border-[#222222] text-[#e5e5e5] rounded-xl text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer transition-colors">
               <Upload className="w-3.5 h-3.5" />
               <span>Restore</span>
               <input
@@ -328,27 +328,27 @@ export const ExportSection: React.FC<ExportSectionProps> = ({
       </div>
 
       {/* Live Data Preview Table */}
-      <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+      <div className="bg-[#0f0f0f] rounded-3xl p-6 shadow-2xl border border-[#1a1a1a]">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Eye className="w-4 h-4 text-slate-500" />
-            <h3 className="text-sm font-bold text-slate-800">
+            <Eye className="w-4 h-4 text-[#e5e5e5]/50" />
+            <h3 className="text-sm font-bold text-[#e5e5e5]">
               Export Data Preview ({filteredForExport.length} entries)
             </h3>
           </div>
-          <span className="text-xs font-semibold text-indigo-600">
+          <span className="text-xs font-semibold text-[#c4b5a1]">
             Total: {formatCurrency(exportTotal, settings.currencySymbol)}
           </span>
         </div>
 
         {filteredForExport.length === 0 ? (
-          <div className="text-center py-8 text-xs text-slate-400">
+          <div className="text-center py-8 text-xs text-[#e5e5e5]/40">
             No expenses match the selected export criteria.
           </div>
         ) : (
-          <div className="overflow-x-auto max-h-72 overflow-y-auto">
+          <div className="overflow-x-auto max-h-72 overflow-y-auto custom-scrollbar">
             <table className="w-full text-left text-xs border-collapse">
-              <thead className="sticky top-0 bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+              <thead className="sticky top-0 bg-[#0f0f0f] text-[#e5e5e5]/50 font-semibold border-b border-[#262626]">
                 <tr>
                   <th className="py-2.5 px-3">Date & Day</th>
                   <th className="py-2.5 px-3">Time</th>
@@ -358,15 +358,15 @@ export const ExportSection: React.FC<ExportSectionProps> = ({
                   <th className="py-2.5 px-3 text-right">Amount</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-700">
+              <tbody className="divide-y divide-[#262626] text-[#e5e5e5]/80">
                 {filteredForExport.slice(0, 30).map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50">
+                  <tr key={item.id} className="hover:bg-[#141414] transition-colors">
                     <td className="py-2 px-3 font-medium">{formatDateDisplay(item.date)}</td>
-                    <td className="py-2 px-3 text-slate-400">{item.time || '--:--'}</td>
-                    <td className="py-2 px-3 font-semibold text-slate-900">{item.title}</td>
+                    <td className="py-2 px-3 text-[#e5e5e5]/40">{item.time || '--:--'}</td>
+                    <td className="py-2 px-3 font-semibold text-[#e5e5e5]">{item.title}</td>
                     <td className="py-2 px-3">{categoryMap.get(item.categoryId) || 'General'}</td>
-                    <td className="py-2 px-3 text-slate-500">{item.paymentMethod}</td>
-                    <td className="py-2 px-3 text-right font-bold text-slate-900">
+                    <td className="py-2 px-3 text-[#e5e5e5]/50">{item.paymentMethod}</td>
+                    <td className="py-2 px-3 text-right font-bold text-[#e5e5e5]">
                       {formatCurrency(item.amount, settings.currencySymbol)}
                     </td>
                   </tr>
@@ -374,7 +374,7 @@ export const ExportSection: React.FC<ExportSectionProps> = ({
               </tbody>
             </table>
             {filteredForExport.length > 30 && (
-              <div className="text-center text-[11px] text-slate-400 py-2 border-t border-slate-100">
+              <div className="text-center text-[11px] text-[#e5e5e5]/40 py-3 border-t border-[#262626] mt-2">
                 Showing first 30 rows out of {filteredForExport.length} entries. All will be included in the download.
               </div>
             )}
