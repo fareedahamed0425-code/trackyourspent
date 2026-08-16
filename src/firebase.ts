@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth, initializeAuth, browserLocalPersistence, indexedDBLocalPersistence } from "firebase/auth";
+import { getAuth, initializeAuth, browserLocalPersistence, indexedDBLocalPersistence, browserPopupRedirectResolver } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
@@ -27,7 +27,8 @@ try {
 
 export { analytics };
 export const auth = initializeAuth(app, {
-  persistence: [indexedDBLocalPersistence, browserLocalPersistence]
+  persistence: [indexedDBLocalPersistence, browserLocalPersistence],
+  popupRedirectResolver: browserPopupRedirectResolver
 });
 export const db = getFirestore(app);
 export const storage = getStorage(app);
