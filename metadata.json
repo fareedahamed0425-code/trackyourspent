@@ -1,0 +1,6 @@
+{
+  "name": "DayWise Expense Manager",
+  "description": "Day-wise expense calculation and management with spin-to-open menu, custom user categories, history tracker, auto-calculator, and export capabilities.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
