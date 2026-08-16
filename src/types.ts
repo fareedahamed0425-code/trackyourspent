@@ -10,11 +10,20 @@ export interface Category {
   createdAt: string;
 }
 
+export interface BankAccount {
+  id: string;
+  name: string; // e.g., "Chase Checking", "HDFC Bank"
+  accountNumber?: string;
+  color?: string; // For UI identification
+  createdAt: number;
+}
+
 export interface Expense {
   id: string;
   title: string;
   amount: number;
   categoryId: string;
+  bankAccountId?: string; // Optional link to a bank account
   date: string; // YYYY-MM-DD
   time: string; // HH:mm
   paymentMethod: PaymentMethod;

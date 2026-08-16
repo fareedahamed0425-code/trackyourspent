@@ -11,7 +11,7 @@ import {
   DollarSign,
   Check,
 } from 'lucide-react';
-import { Category, Expense, PaymentMethod, UserSettings } from '../types';
+import { Category, Expense, PaymentMethod, UserSettings, BankAccount } from '../types';
 import { formatTimeNow, getTodayDateString } from '../utils/storage';
 import { CategoryIcon } from './CategoryIcon';
 
@@ -29,6 +29,7 @@ interface ExpenseModalProps {
     notes?: string;
   }) => void;
   categories: Category[];
+  bankAccounts?: BankAccount[];
   settings: UserSettings;
   editingExpense?: Expense | null;
   defaultDate?: string;
@@ -49,6 +50,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   onClose,
   onSave,
   categories,
+  bankAccounts = [],
   settings,
   editingExpense,
   defaultDate,
@@ -57,6 +59,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [categoryId, setCategoryId] = useState('');
+  const [bankAccountId, setBankAccountId] = useState<string>('');
   const [date, setDate] = useState(getTodayDateString());
   const [time, setTime] = useState(formatTimeNow());
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('UPI / Online');
@@ -68,6 +71,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
       setTitle(editingExpense.title);
       setAmount(String(editingExpense.amount));
       setCategoryId(editingExpense.categoryId);
+      setBankAccountId(editingExpense.bankAccountId || '');
       setDate(editingExpense.date);
       setTime(editingExpense.time || formatTimeNow());
       setPaymentMethod(editingExpense.paymentMethod || 'UPI / Online');
@@ -76,6 +80,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
       setTitle('');
       setAmount('');
       setCategoryId(defaultCategoryId || categories[0]?.id || 'food');
+      setBankAccountId('');
       setDate(defaultDate || getTodayDateString());
       setTime(formatTimeNow());
       setPaymentMethod('UPI / Online');
@@ -95,6 +100,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
       title: title.trim(),
       amount: parsedAmount,
       categoryId: categoryId || categories[0]?.id || 'food',
+      bankAccountId: bankAccountId || undefined,
       date: date || getTodayDateString(),
       time: time || formatTimeNow(),
       paymentMethod,
@@ -261,6 +267,25 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
               ))}
             </div>
           </div>
+
+          {/* Linked Bank Account (Optional) */}
+          {bankAccounts.length > 0 && (
+            <div>
+              <label className="block text-[10px] uppercase tracking-wider font-semibold text-[#e5e5e5]/60 mb-1">
+                Link to Bank Account (Optional)
+              </label>
+              <select
+                value={bankAccountId}
+                onChange={(e) => setBankAccountId(e.target.value)}
+                className="w-full px-3.5 py-2.5 bg-[#141414] border border-[#222222] rounded-lg text-xs text-[#e5e5e5] focus:outline-hidden focus:border-[#c4b5a1]"
+              >
+                <option value="">No Bank Linked</option>
+                {bankAccounts.map(bank => (
+                  <option key={bank.id} value={bank.id}>{bank.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Notes */}
           <div>

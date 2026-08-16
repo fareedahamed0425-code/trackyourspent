@@ -14,7 +14,7 @@ import {
   Sparkles,
   LogOut,
 } from 'lucide-react';
-import { ActiveTab, Category, Expense, PaymentMethod, UserSettings } from './types';
+import { Category, Expense, PaymentMethod, UserSettings, BankAccount } from './types';
 import {
   DEFAULT_CATEGORIES,
   DEFAULT_SETTINGS,
@@ -31,6 +31,7 @@ import { ExportSection } from './components/ExportSection';
 import { SettingsView } from './components/SettingsView';
 import { ExpenseModal } from './components/ExpenseModal';
 import { LoginView } from './components/LoginView';
+import { BankManager } from './components/BankManager';
 
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { onAuthStateChanged, User, signOut } from 'firebase/auth';
@@ -53,6 +54,7 @@ export default function App() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
   const [settings, setSettings] = useState<UserSettings>(DEFAULT_SETTINGS);
+  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([]);
 
   const [selectedDate, setSelectedDate] = useState<string>(getTodayDateString());
 
@@ -76,6 +78,7 @@ export default function App() {
             if (data.expenses) setExpenses(data.expenses);
             if (data.categories) setCategories(data.categories);
             if (data.settings) setSettings(data.settings);
+            if (data.bankAccounts) setBankAccounts(data.bankAccounts);
           } else {
             // First time login, init with defaults, but attempt to migrate existing local storage data
             try {
@@ -126,11 +129,11 @@ export default function App() {
     if (!user || !dataLoaded) return;
     const saveToCloud = async () => {
       try {
-        // Scrub undefined values which Firestore rejects
         const payload = JSON.parse(JSON.stringify({
           expenses,
           categories,
-          settings
+          settings,
+          bankAccounts
         }));
         await setDoc(doc(db, 'users', user.uid), payload, { merge: true });
       } catch (e: any) {
@@ -153,6 +156,7 @@ export default function App() {
     title: string;
     amount: number;
     categoryId: string;
+    bankAccountId?: string;
     date: string;
     time: string;
     paymentMethod: PaymentMethod;
@@ -168,6 +172,7 @@ export default function App() {
                 title: expenseData.title,
                 amount: expenseData.amount,
                 categoryId: expenseData.categoryId,
+                bankAccountId: expenseData.bankAccountId,
                 date: expenseData.date,
                 time: expenseData.time,
                 paymentMethod: expenseData.paymentMethod,
@@ -184,6 +189,7 @@ export default function App() {
         title: expenseData.title,
         amount: expenseData.amount,
         categoryId: expenseData.categoryId,
+        bankAccountId: expenseData.bankAccountId,
         date: expenseData.date,
         time: expenseData.time,
         paymentMethod: expenseData.paymentMethod,
@@ -258,6 +264,24 @@ export default function App() {
     setCategories((prev) => prev.filter((c) => c.id !== categoryId));
   };
 
+  // Bank Management Handlers
+  const handleAddBank = (bank: Omit<BankAccount, 'id' | 'createdAt'>) => {
+    const newBank: BankAccount = {
+      ...bank,
+      id: 'bank-' + Date.now(),
+      createdAt: Date.now(),
+    };
+    setBankAccounts((prev) => [...prev, newBank]);
+  };
+
+  const handleUpdateBank = (updatedBank: BankAccount) => {
+    setBankAccounts((prev) => prev.map((b) => (b.id === updatedBank.id ? updatedBank : b)));
+  };
+
+  const handleDeleteBank = (bankId: string) => {
+    setBankAccounts((prev) => prev.filter((b) => b.id !== bankId));
+  };
+
   // 6. Settings & Data Restore
   const handleUpdateSettings = (newPartial: Partial<UserSettings>) => {
     setSettings((prev) => ({ ...prev, ...newPartial }));
@@ -273,16 +297,18 @@ export default function App() {
     setCategories(DEFAULT_CATEGORIES);
   };
 
-  const handleRestoreData = (backup: { expenses: Expense[]; categories?: Category[] }) => {
+  const handleRestoreData = (backup: { expenses: Expense[]; categories?: Category[]; bankAccounts?: BankAccount[] }) => {
     if (backup.expenses) setExpenses(backup.expenses);
     if (backup.categories && backup.categories.length > 0) setCategories(backup.categories);
+    if (backup.bankAccounts) setBankAccounts(backup.bankAccounts);
   };
 
   // Navigation Items for Top Header Bar
-  const navTabs: { id: ActiveTab; label: string; icon: React.ElementType }[] = [
+  const navTabs: { id: string; label: string; icon: React.ElementType }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'daily', label: 'Day-Wise', icon: CalendarDays },
     { id: 'categories', label: 'Categories', icon: FolderTree },
+    { id: 'banks', label: 'Bank Sync', icon: Wallet },
     { id: 'calculator', label: 'Auto-Calc', icon: Calculator },
     { id: 'history', label: 'History', icon: History },
     { id: 'export', label: 'Download', icon: Download },
@@ -465,6 +491,26 @@ export default function App() {
               </motion.div>
             } />
 
+            <Route path="/banks" element={
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.18 }}
+              >
+                <BankManager
+                  bankAccounts={bankAccounts}
+                  expenses={expenses}
+                  categories={categories}
+                  settings={settings}
+                  onAddBank={handleAddBank}
+                  onUpdateBank={handleUpdateBank}
+                  onDeleteBank={handleDeleteBank}
+                  onSaveExpense={handleSaveExpense}
+                />
+              </motion.div>
+            } />
+
             <Route path="/calculator" element={
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
@@ -564,6 +610,7 @@ export default function App() {
         onClose={() => setIsExpenseModalOpen(false)}
         onSave={handleSaveExpense}
         categories={categories}
+        bankAccounts={bankAccounts}
         settings={settings}
         editingExpense={editingExpense}
         defaultDate={modalDefaultDate}
