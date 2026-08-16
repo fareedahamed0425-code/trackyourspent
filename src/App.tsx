@@ -119,11 +119,13 @@ export default function App() {
     if (!user || !dataLoaded) return;
     const saveToCloud = async () => {
       try {
-        await setDoc(doc(db, 'users', user.uid), {
+        // Scrub undefined values which Firestore rejects
+        const payload = JSON.parse(JSON.stringify({
           expenses,
           categories,
           settings
-        }, { merge: true });
+        }));
+        await setDoc(doc(db, 'users', user.uid), payload, { merge: true });
       } catch (e: any) {
         console.error('Failed to save to cloud', e);
         // Only alert if it's a permission issue or quota issue to not spam the user
