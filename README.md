@@ -1,6 +1,9 @@
 # 💵 trackyourspent
 
 <div align="center">
+  <img src="public/logo.svg" alt="trackyourspent logo" width="128" height="128" />
+  <br/>
+  <br/>
 
 ![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)

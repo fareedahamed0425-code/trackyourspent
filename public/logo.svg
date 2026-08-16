@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCEFD8" />
+      <stop offset="40%" stop-color="#C4B5A1" />
+      <stop offset="100%" stop-color="#736657" />
+    </linearGradient>
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="16" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Premium Dark Background -->
+  <rect width="512" height="512" rx="120" fill="#0A0A0A" />
+  <rect width="512" height="512" rx="120" stroke="url(#gold)" stroke-width="8" stroke-opacity="0.15" />
+  <rect x="24" y="24" width="464" height="464" rx="96" stroke="url(#gold)" stroke-width="2" stroke-opacity="0.05" />
+
+  <!-- Abstract Chart / Ledger -->
+  <g transform="translate(106, 120)" filter="url(#softGlow)">
+    <!-- Bar 1 -->
+    <rect x="0" y="160" width="60" height="110" rx="30" fill="url(#gold)" fill-opacity="0.4" />
+    <!-- Bar 2 -->
+    <rect x="120" y="90" width="60" height="180" rx="30" fill="url(#gold)" fill-opacity="0.7" />
+    <!-- Bar 3 -->
+    <rect x="240" y="0" width="60" height="270" rx="30" fill="url(#gold)" />
+    
+    <!-- Dynamic Swoosh / Growth Line -->
+    <path d="M -30 200 Q 120 230, 270 30" fill="none" stroke="#FCEFD8" stroke-width="28" stroke-linecap="round" />
+  </g>
+</svg>
