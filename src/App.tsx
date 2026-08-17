@@ -424,6 +424,14 @@ export default function App() {
             </button>
           );
         })}
+        <div className="w-[1px] h-6 bg-[#222222] mx-1 shrink-0" />
+        <button
+          onClick={() => signOut(auth)}
+          className="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-colors bg-rose-950/20 text-rose-400 hover:bg-rose-950/40 border border-rose-900/30 shrink-0"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span>Exit</span>
+        </button>
       </div>
 
       {/* Main Content Area */}
