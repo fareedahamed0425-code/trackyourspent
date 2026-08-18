@@ -41,11 +41,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const todayExpenses = expenses.filter((e) => e.date === todayStr);
   const todaySpent = todayExpenses.reduce((sum, e) => sum + e.amount, 0);
 
-  // Month-to-date total
-  const now = new Date();
-  const currentMonthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  const monthExpenses = expenses.filter((e) => e.date.startsWith(currentMonthPrefix));
-  const monthSpent = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
+  // Overall total
+  const totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
 
   // Last 7 days breakdown
   const last7Days: { date: string; label: string; spent: number }[] = [];
@@ -60,11 +57,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     last7Days.push({ date: dateStr, label: dayName, spent: daySum });
   }
 
-  const max7DaySpend = Math.max(...last7Days.map((d) => d.spent), settings.dailyBudget, 1);
+  const max7DaySpend = Math.max(...last7Days.map((d) => d.spent), 1);
 
-  // Category totals for this month
+  // Category totals
   const categoryTotals: { [catId: string]: number } = {};
-  monthExpenses.forEach((e) => {
+  expenses.forEach((e) => {
     categoryTotals[e.categoryId] = (categoryTotals[e.categoryId] || 0) + e.amount;
   });
 
@@ -134,38 +131,37 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           <div className="mt-5 pt-3 border-t border-[#1a1a1a] flex items-center justify-between text-xs text-[#e5e5e5]/50">
-            <span>Budget: {formatCurrency(settings.dailyBudget, settings.currencySymbol)}</span>
-            <span
-              className={`font-medium ${
-                todaySpent <= settings.dailyBudget ? 'text-[#c4b5a1]' : 'text-rose-400'
-              }`}
-            >
-              {todaySpent <= settings.dailyBudget
-                ? `${formatCurrency(settings.dailyBudget - todaySpent, settings.currencySymbol)} under`
-                : 'Over budget'}
-            </span>
+            <span>{todayExpenses.length} entries</span>
           </div>
         </div>
 
-        {/* This Month's Total */}
+        {/* Overall Total */}
         <div className="bg-[#0f0f0f] rounded-2xl p-6 border border-[#1a1a1a] flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between">
               <span className="text-[10px] uppercase font-semibold text-[#e5e5e5]/40 tracking-[0.2em]">
-                Monthly Total
+                Overall Total
               </span>
               <span className="text-[10px] bg-[#141414] border border-[#222222] text-[#c4b5a1] px-2 py-0.5 rounded-sm font-mono">
-                {now.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                All Time
               </span>
             </div>
             <div className="text-3xl font-light text-[#c4b5a1] mt-3 tracking-tight">
-              {formatCurrency(monthSpent, settings.currencySymbol)}
+              {formatCurrency(totalSpent, settings.currencySymbol)}
             </div>
           </div>
 
           <div className="mt-5 pt-3 border-t border-[#1a1a1a] flex items-center justify-between text-xs text-[#e5e5e5]/50">
-            <span>{monthExpenses.length} entries</span>
-            <span>Target: {formatCurrency(settings.monthlyBudget, settings.currencySymbol)}</span>
+            <span>Target: {formatCurrency(settings.totalBudget, settings.currencySymbol)}</span>
+            <span
+              className={`font-medium ${
+                totalSpent <= settings.totalBudget ? 'text-[#c4b5a1]' : 'text-rose-400'
+              }`}
+            >
+              {totalSpent <= settings.totalBudget
+                ? `${formatCurrency(settings.totalBudget - totalSpent, settings.currencySymbol)} left`
+                : 'Over total'}
+            </span>
           </div>
         </div>
 

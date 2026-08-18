@@ -74,9 +74,9 @@ export const AutoCalculator: React.FC<AutoCalculatorProps> = ({
   // Today's expense stats ("what is going on")
   const todayStr = getTodayDateString();
   const todayExpenses = expenses.filter((e) => e.date === todayStr);
-  const todaySpent = todayExpenses.reduce((sum, e) => sum + e.amount, 0);
-  const todayRemaining = Math.max(0, settings.dailyBudget - todaySpent);
-  const dailyPercentUsed = Math.min(100, Math.round((todaySpent / (settings.dailyBudget || 1)) * 100));
+  const totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
+  const totalRemaining = Math.max(0, settings.totalBudget - totalSpent);
+  const totalPercentUsed = Math.min(100, Math.round((totalSpent / (settings.totalBudget || 1)) * 100));
 
   // Keypad actions
   const handleKeypadPress = (val: string) => {
@@ -162,34 +162,34 @@ export const AutoCalculator: React.FC<AutoCalculatorProps> = ({
         {/* Live Daily Runway Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-5">
           <div className="bg-[#141414] rounded-xl p-4 border border-[#222222]">
-            <div className="text-[10px] uppercase font-semibold text-[#e5e5e5]/40 tracking-[0.2em]">Spent Today</div>
+            <div className="text-[10px] uppercase font-semibold text-[#e5e5e5]/40 tracking-[0.2em]">Spent Overall</div>
             <div className="text-2xl font-light text-white mt-1">
-              {formatCurrency(todaySpent, settings.currencySymbol)}
+              {formatCurrency(totalSpent, settings.currencySymbol)}
             </div>
             <div className="text-[10px] uppercase tracking-wider text-[#e5e5e5]/40 mt-1 font-mono">
-              {todayExpenses.length} transactions recorded
+              {expenses.length} transactions recorded
             </div>
           </div>
 
           <div className="bg-[#141414] rounded-xl p-4 border border-[#222222]">
-            <div className="text-[10px] uppercase font-semibold text-[#e5e5e5]/40 tracking-[0.2em]">Daily Target</div>
+            <div className="text-[10px] uppercase font-semibold text-[#e5e5e5]/40 tracking-[0.2em]">Total Target</div>
             <div className="text-2xl font-light text-slate-200 mt-1">
-              {formatCurrency(settings.dailyBudget, settings.currencySymbol)}
+              {formatCurrency(settings.totalBudget, settings.currencySymbol)}
             </div>
             <div className="flex items-center gap-2 mt-1.5">
               <div className="w-full bg-[#222222] h-1.5 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full ${
-                    dailyPercentUsed > 90
+                    totalPercentUsed > 90
                       ? 'bg-rose-500'
-                      : dailyPercentUsed > 70
+                      : totalPercentUsed > 70
                       ? 'bg-amber-500'
                       : 'bg-[#c4b5a1]'
                   }`}
-                  style={{ width: `${dailyPercentUsed}%` }}
+                  style={{ width: `${totalPercentUsed}%` }}
                 />
               </div>
-              <span className="text-[10px] font-mono text-[#e5e5e5]/60">{dailyPercentUsed}%</span>
+              <span className="text-[10px] font-mono text-[#e5e5e5]/60">{totalPercentUsed}%</span>
             </div>
           </div>
 
@@ -197,13 +197,13 @@ export const AutoCalculator: React.FC<AutoCalculatorProps> = ({
             <div className="text-[10px] uppercase font-semibold text-[#e5e5e5]/40 tracking-[0.2em]">Remaining Runway</div>
             <div
               className={`text-2xl font-light mt-1 ${
-                todayRemaining > 0 ? 'text-[#c4b5a1]' : 'text-rose-400'
+                totalRemaining > 0 ? 'text-[#c4b5a1]' : 'text-rose-400'
               }`}
             >
-              {formatCurrency(todayRemaining, settings.currencySymbol)}
+              {formatCurrency(totalRemaining, settings.currencySymbol)}
             </div>
             <div className="text-[10px] uppercase tracking-wider text-[#e5e5e5]/40 mt-1 font-mono">
-              {todayRemaining > 0 ? 'Within budget pace' : 'Exceeded daily goal'}
+              {totalRemaining > 0 ? 'Within budget pace' : 'Exceeded total goal'}
             </div>
           </div>
         </div>

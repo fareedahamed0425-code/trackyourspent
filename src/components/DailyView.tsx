@@ -88,7 +88,8 @@ export const DailyView: React.FC<DailyViewProps> = ({
     categoryTotals[e.categoryId] = (categoryTotals[e.categoryId] || 0) + e.amount;
   });
 
-  const dailyBudgetDiff = settings.dailyBudget - dayTotal;
+  const totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
+  const totalBudgetDiff = settings.totalBudget - totalSpent;
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12">
@@ -162,18 +163,18 @@ export const DailyView: React.FC<DailyViewProps> = ({
 
           <div className="bg-[#141414] rounded-xl p-4 border border-[#222222]">
             <div className="text-[10px] uppercase font-semibold text-[#e5e5e5]/40 tracking-[0.2em]">
-              Daily Budget Variance
+              Total Budget Remaining
             </div>
             <div
               className={`text-2xl font-light mt-1.5 ${
-                dailyBudgetDiff >= 0 ? 'text-[#c4b5a1]' : 'text-rose-400'
+                totalBudgetDiff >= 0 ? 'text-[#c4b5a1]' : 'text-rose-400'
               }`}
             >
-              {dailyBudgetDiff >= 0 ? '+' : ''}
-              {formatCurrency(dailyBudgetDiff, settings.currencySymbol)}
+              {totalBudgetDiff >= 0 ? '+' : ''}
+              {formatCurrency(totalBudgetDiff, settings.currencySymbol)}
             </div>
             <div className="text-[10px] text-[#e5e5e5]/40 mt-1 uppercase tracking-wider font-mono">
-              {dailyBudgetDiff >= 0 ? 'Under target limit' : 'Above daily allowance'}
+              {totalBudgetDiff >= 0 ? 'Under total limit' : 'Above total limit'}
             </div>
           </div>
 

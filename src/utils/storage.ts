@@ -69,8 +69,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
 export const DEFAULT_SETTINGS: UserSettings = {
   currency: 'INR',
   currencySymbol: '₹',
-  dailyBudget: 500,
-  monthlyBudget: 15000,
+  totalBudget: 15000,
   cornerPosition: 'bottom-right',
   haptics: true,
 };

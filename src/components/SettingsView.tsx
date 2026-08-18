@@ -40,15 +40,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   onResetData,
   onLoadSampleData,
 }) => {
-  const [dailyBudget, setDailyBudget] = useState(String(settings.dailyBudget));
-  const [monthlyBudget, setMonthlyBudget] = useState(String(settings.monthlyBudget));
+  const [totalBudget, setTotalBudget] = useState(String(settings.totalBudget));
   const [savedToast, setSavedToast] = useState(false);
 
   const handleSaveBudgets = (e: React.FormEvent) => {
     e.preventDefault();
     onUpdateSettings({
-      dailyBudget: parseFloat(dailyBudget) || 50,
-      monthlyBudget: parseFloat(monthlyBudget) || 1500,
+      totalBudget: parseFloat(totalBudget) || 15000,
     });
     setSavedToast(true);
     setTimeout(() => setSavedToast(false), 2500);
@@ -107,33 +105,18 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
           {/* Daily and Monthly Target Form */}
           <form onSubmit={handleSaveBudgets} className="space-y-4 pt-4 border-t border-[#1a1a1a]">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <div>
                 <label className="block text-[10px] uppercase tracking-wider font-semibold text-[#e5e5e5]/60 mb-1">
-                  Daily Spending Target ({settings.currencySymbol})
+                  Total Budget ({settings.currencySymbol})
                 </label>
                 <input
-                  id="settings-daily-budget-input"
+                  id="settings-total-budget-input"
                   type="number"
                   step="1"
                   min="1"
-                  value={dailyBudget}
-                  onChange={(e) => setDailyBudget(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-[#141414] border border-[#222222] rounded-lg text-xs text-[#e5e5e5] focus:outline-hidden focus:border-[#c4b5a1] font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] uppercase tracking-wider font-semibold text-[#e5e5e5]/60 mb-1">
-                  Monthly Target ({settings.currencySymbol})
-                </label>
-                <input
-                  id="settings-monthly-budget-input"
-                  type="number"
-                  step="1"
-                  min="1"
-                  value={monthlyBudget}
-                  onChange={(e) => setMonthlyBudget(e.target.value)}
+                  value={totalBudget}
+                  onChange={(e) => setTotalBudget(e.target.value)}
                   className="w-full px-3.5 py-2.5 bg-[#141414] border border-[#222222] rounded-lg text-xs text-[#e5e5e5] focus:outline-hidden focus:border-[#c4b5a1] font-mono"
                 />
               </div>
@@ -228,7 +211,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
           <button
             onClick={() => {
-              if (confirm('Are you sure you want to clear all recorded expenses? This cannot be undone and will wipe your cloud data.')) {
+              const confirmText = prompt("Are you sure you wanna delete? If yes, type below the sentence:\nyes i wanna delete");
+              if (confirmText === 'yes i wanna delete') {
                 onResetData();
               }
             }}

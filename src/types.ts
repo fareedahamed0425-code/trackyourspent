@@ -44,8 +44,7 @@ export interface Expense {
 export interface UserSettings {
   currency: string;
   currencySymbol: string;
-  dailyBudget: number;
-  monthlyBudget: number;
+  totalBudget: number;
   cornerPosition: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
   haptics: boolean;
 }

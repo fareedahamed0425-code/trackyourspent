@@ -6,7 +6,8 @@ import { Upload, Check, Trash2, ArrowRight, ChevronRight, Loader2 } from 'lucide
 import { formatCurrency } from '../utils/helpers';
 import { getTodayDateString } from '../utils/storage';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
+import workerUrl from 'pdfjs-dist/build/pdf.worker.mjs?url';
+pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
 
 interface StatementReconcilerProps {
   bankId: string;
