@@ -42,7 +42,10 @@ export const DailyView: React.FC<DailyViewProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'time-desc' | 'amount-desc' | 'amount-asc'>('time-desc');
 
-  const categoryMap = new Map<string, Category>(categories.map((c) => [c.id, c]));
+  const categoryMap = React.useMemo(
+    () => new Map<string, Category>(categories.map((c) => [c.id, c])),
+    [categories]
+  );
 
   // Date shifting helpers
   const shiftDate = (days: number) => {
@@ -64,23 +67,31 @@ export const DailyView: React.FC<DailyViewProps> = ({
   };
 
   // Filter day expenses
-  const dayExpenses = expenses.filter((e) => e.date === selectedDate);
-  const dayTotal = dayExpenses.reduce((sum, e) => sum + e.amount, 0);
+  const dayExpenses = React.useMemo(
+    () => expenses.filter((e) => e.date === selectedDate),
+    [expenses, selectedDate]
+  );
+  const dayTotal = React.useMemo(
+    () => dayExpenses.reduce((sum, e) => sum + e.amount, 0),
+    [dayExpenses]
+  );
 
   // Filter with search
-  const filteredExpenses = dayExpenses
-    .filter((e) => {
-      const matchTitle = e.title.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchNotes = e.notes?.toLowerCase().includes(searchQuery.toLowerCase()) || false;
-      const catName = categoryMap.get(e.categoryId)?.name.toLowerCase() || '';
-      const matchCategory = catName.includes(searchQuery.toLowerCase());
-      return matchTitle || matchNotes || matchCategory;
-    })
-    .sort((a, b) => {
-      if (sortBy === 'amount-desc') return b.amount - a.amount;
-      if (sortBy === 'amount-asc') return a.amount - b.amount;
-      return (b.time || '').localeCompare(a.time || '');
-    });
+  const filteredExpenses = React.useMemo(() => {
+    return dayExpenses
+      .filter((e) => {
+        const matchTitle = e.title.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchNotes = e.notes?.toLowerCase().includes(searchQuery.toLowerCase()) || false;
+        const catName = categoryMap.get(e.categoryId)?.name.toLowerCase() || '';
+        const matchCat = catName.includes(searchQuery.toLowerCase());
+        return matchTitle || matchNotes || matchCat;
+      })
+      .sort((a, b) => {
+        if (sortBy === 'amount-desc') return b.amount - a.amount;
+        if (sortBy === 'amount-asc') return a.amount - b.amount;
+        return (b.time || '00:00').localeCompare(a.time || '00:00');
+      });
+  }, [dayExpenses, searchQuery, categoryMap, sortBy]);
 
   // Calculate category distribution for this day
   const categoryTotals: { [catId: string]: number } = {};

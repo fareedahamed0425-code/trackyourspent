@@ -57,4 +57,4 @@ export interface CalculatorHistory {
   note?: string;
 }
 
-export type ActiveTab = 'dashboard' | 'daily' | 'categories' | 'calculator' | 'history' | 'export' | 'settings' | 'ai-advisor';
+export type ActiveTab = 'dashboard' | 'daily' | 'categories' | 'banks' | 'calculator' | 'history' | 'export' | 'settings' | 'ai-advisor';

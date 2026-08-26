@@ -34,40 +34,59 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onSelectDate,
   onOpenAddExpense,
 }) => {
-  const categoryMap = new Map<string, Category>(categories.map((c) => [c.id, c]));
+  const categoryMap = React.useMemo(
+    () => new Map<string, Category>(categories.map((c) => [c.id, c])),
+    [categories]
+  );
   const todayStr = getTodayDateString();
 
   // Today's total
-  const todayExpenses = expenses.filter((e) => e.date === todayStr);
-  const todaySpent = todayExpenses.reduce((sum, e) => sum + e.amount, 0);
+  const todayExpenses = React.useMemo(
+    () => expenses.filter((e) => e.date === todayStr),
+    [expenses, todayStr]
+  );
+  const todaySpent = React.useMemo(
+    () => todayExpenses.reduce((sum, e) => sum + e.amount, 0),
+    [todayExpenses]
+  );
 
   // Overall total
-  const totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
+  const totalSpent = React.useMemo(
+    () => expenses.reduce((sum, e) => sum + e.amount, 0),
+    [expenses]
+  );
 
   // Last 7 days breakdown
-  const last7Days: { date: string; label: string; spent: number }[] = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
-      d.getDate()
-    ).padStart(2, '0')}`;
-    const dayName = i === 0 ? 'Today' : i === 1 ? 'Yest' : d.toLocaleDateString('en-US', { weekday: 'narrow' });
-    const daySum = expenses.filter((e) => e.date === dateStr).reduce((sum, e) => sum + e.amount, 0);
-    last7Days.push({ date: dateStr, label: dayName, spent: daySum });
-  }
+  const last7Days = React.useMemo(() => {
+    const list: { date: string; label: string; spent: number }[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+        d.getDate()
+      ).padStart(2, '0')}`;
+      const dayName = i === 0 ? 'Today' : i === 1 ? 'Yest' : d.toLocaleDateString('en-US', { weekday: 'narrow' });
+      const daySum = expenses.filter((e) => e.date === dateStr).reduce((sum, e) => sum + e.amount, 0);
+      list.push({ date: dateStr, label: dayName, spent: daySum });
+    }
+    return list;
+  }, [expenses]);
 
-  const max7DaySpend = Math.max(...last7Days.map((d) => d.spent), 1);
+  const max7DaySpend = React.useMemo(
+    () => Math.max(...last7Days.map((d) => d.spent), 1),
+    [last7Days]
+  );
 
   // Category totals
-  const categoryTotals: { [catId: string]: number } = {};
-  expenses.forEach((e) => {
-    categoryTotals[e.categoryId] = (categoryTotals[e.categoryId] || 0) + e.amount;
-  });
-
-  const sortedCategories = Object.entries(categoryTotals)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 4);
+  const sortedCategories = React.useMemo(() => {
+    const totals: { [catId: string]: number } = {};
+    expenses.forEach((e) => {
+      totals[e.categoryId] = (totals[e.categoryId] || 0) + e.amount;
+    });
+    return Object.entries(totals)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4);
+  }, [expenses]);
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12">

@@ -23,6 +23,7 @@ interface ExpenseModalProps {
     title: string;
     amount: number;
     categoryId: string;
+    bankAccountId?: string;
     date: string;
     time: string;
     paymentMethod: PaymentMethod;

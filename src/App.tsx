@@ -17,7 +17,7 @@ import {
   Globe,
   Bot
 } from 'lucide-react';
-import { Category, Expense, PaymentMethod, UserSettings, BankAccount } from './types';
+import { ActiveTab, Category, Expense, PaymentMethod, UserSettings, BankAccount } from './types';
 import {
   DEFAULT_CATEGORIES,
   DEFAULT_SETTINGS,
@@ -307,8 +307,7 @@ export default function App() {
   };
 
   // Navigation Items for Top Header Bar
-  // Navigation Items for Top Header Bar
-  const navTabs: { id: string; label: string; icon: React.ElementType }[] = [
+  const navTabs: { id: ActiveTab; label: string; icon: React.ElementType }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'daily', label: 'Day-Wise', icon: CalendarDays },
     { id: 'categories', label: 'Categories', icon: FolderTree },
@@ -468,7 +467,7 @@ export default function App() {
       {/* Main Content Area */}
       <main id="main-content" role="main" tabIndex={-1} className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 focus:outline-none">
         <AnimatePresence mode="wait">
-          <Routes location={location} key={location.pathname}>
+          <Routes location={location}>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             
             <Route path="/dashboard" element={

@@ -76,7 +76,7 @@ export function StatementReconciler({ bankId, categories, settings, onSaveExpens
 
   const processPDF = async (pdfFile: File) => {
     const arrayBuffer = await pdfFile.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+    const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
     const numPages = pdf.numPages;
     let extractedTxns: ProcessedTransaction[] = [];
     let txnIndex = 0;
@@ -158,7 +158,7 @@ export function StatementReconciler({ bankId, categories, settings, onSaveExpens
         date: date,
         amount: isNaN(amount) ? 0 : amount,
         title: String(row[descCol]).substring(0, 50),
-        status: 'pending'
+        status: 'pending' as const
       };
     }).filter(t => t.amount > 0); // Only positive amounts for expenses
 
