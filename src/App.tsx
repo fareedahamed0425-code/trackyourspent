@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   LayoutDashboard,
@@ -153,158 +153,172 @@ export default function App() {
     return () => clearTimeout(timeoutId);
   }, [expenses, categories, settings, user, dataLoaded]);
 
-  // 3. Expense Actions
-  const handleSaveExpense = (expenseData: {
-    id?: string;
-    title: string;
-    amount: number;
-    categoryId: string;
-    bankAccountId?: string;
-    date: string;
-    time: string;
-    paymentMethod: PaymentMethod;
-    notes?: string;
-  }) => {
-    if (expenseData.id) {
-      // Update existing
-      setExpenses((prev) =>
-        prev.map((item) =>
-          item.id === expenseData.id
-            ? {
-                ...item,
-                title: expenseData.title,
-                amount: expenseData.amount,
-                categoryId: expenseData.categoryId,
-                bankAccountId: expenseData.bankAccountId,
-                date: expenseData.date,
-                time: expenseData.time,
-                paymentMethod: expenseData.paymentMethod,
-                notes: expenseData.notes,
-                updatedAt: Date.now(),
-              }
-            : item
-        )
-      );
-    } else {
-      // Add new
-      const newExpense: Expense = {
-        id: 'exp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
-        title: expenseData.title,
-        amount: expenseData.amount,
-        categoryId: expenseData.categoryId,
-        bankAccountId: expenseData.bankAccountId,
-        date: expenseData.date,
-        time: expenseData.time,
-        paymentMethod: expenseData.paymentMethod,
-        notes: expenseData.notes,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      };
-      setExpenses((prev) => [newExpense, ...prev]);
-    }
-  };
+  // 3. Expense Actions (CRUD)
+  const handleSaveExpense = useCallback(
+    (expenseData: {
+      id?: string;
+      title: string;
+      amount: number;
+      categoryId: string;
+      bankAccountId?: string;
+      date: string;
+      time: string;
+      paymentMethod: PaymentMethod;
+      notes?: string;
+    }) => {
+      if (expenseData.id) {
+        // Update existing
+        setExpenses((prev) =>
+          prev.map((item) =>
+            item.id === expenseData.id
+              ? {
+                  ...item,
+                  title: expenseData.title,
+                  amount: expenseData.amount,
+                  categoryId: expenseData.categoryId,
+                  bankAccountId: expenseData.bankAccountId,
+                  date: expenseData.date,
+                  time: expenseData.time,
+                  paymentMethod: expenseData.paymentMethod,
+                  notes: expenseData.notes,
+                  updatedAt: Date.now(),
+                }
+              : item
+          )
+        );
+      } else {
+        // Add new
+        const newExpense: Expense = {
+          id: 'exp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+          title: expenseData.title,
+          amount: expenseData.amount,
+          categoryId: expenseData.categoryId,
+          bankAccountId: expenseData.bankAccountId,
+          date: expenseData.date,
+          time: expenseData.time,
+          paymentMethod: expenseData.paymentMethod,
+          notes: expenseData.notes,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        };
+        setExpenses((prev) => [newExpense, ...prev]);
+      }
+    },
+    []
+  );
 
-  const handleDeleteExpense = (expenseId: string) => {
+  const handleDeleteExpense = useCallback((expenseId: string) => {
     setExpenses((prev) => prev.filter((e) => e.id !== expenseId));
-  };
+  }, []);
 
-  const handleEditExpense = (expense: Expense) => {
+  const handleEditExpense = useCallback((expense: Expense) => {
     setEditingExpense(expense);
     setModalDefaultDate(expense.date);
     setModalDefaultCategory(expense.categoryId);
     setIsExpenseModalOpen(true);
-  };
+  }, []);
 
-  const handleOpenAddExpense = (defaultDateStr?: string, defaultCatId?: string) => {
-    setEditingExpense(null);
-    setModalDefaultDate(defaultDateStr || selectedDate);
-    setModalDefaultCategory(defaultCatId);
-    setIsExpenseModalOpen(true);
-  };
+  const handleOpenAddExpense = useCallback(
+    (defaultDateStr?: string, defaultCatId?: string) => {
+      setEditingExpense(null);
+      setModalDefaultDate(defaultDateStr || selectedDate);
+      setModalDefaultCategory(defaultCatId);
+      setIsExpenseModalOpen(true);
+    },
+    [selectedDate]
+  );
 
   // 4. Calculator Quick Add
-  const handleAddCalculatedExpense = (expenseData: {
-    title: string;
-    amount: number;
-    categoryId: string;
-    notes?: string;
-  }) => {
-    const today = getTodayDateString();
-    const d = new Date();
-    const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  const handleAddCalculatedExpense = useCallback(
+    (expenseData: {
+      title: string;
+      amount: number;
+      categoryId: string;
+      notes?: string;
+    }) => {
+      const today = getTodayDateString();
+      const d = new Date();
+      const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 
-    const newExpense: Expense = {
-      id: 'exp-calc-' + Date.now(),
-      title: expenseData.title,
-      amount: expenseData.amount,
-      categoryId: expenseData.categoryId,
-      date: today,
-      time: time,
-      paymentMethod: 'UPI / Online',
-      notes: expenseData.notes,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
+      const newExpense: Expense = {
+        id: 'exp-calc-' + Date.now(),
+        title: expenseData.title,
+        amount: expenseData.amount,
+        categoryId: expenseData.categoryId,
+        date: today,
+        time: time,
+        paymentMethod: 'UPI / Online',
+        notes: expenseData.notes,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
 
-    setExpenses((prev) => [newExpense, ...prev]);
-  };
+      setExpenses((prev) => [newExpense, ...prev]);
+    },
+    []
+  );
 
   // 5. Category Management Handlers
-  const handleAddCategory = (categoryData: Omit<Category, 'id' | 'createdAt'>) => {
-    const newCat: Category = {
-      ...categoryData,
-      id: 'cat-' + Date.now(),
-      createdAt: new Date().toISOString(),
-    };
-    setCategories((prev) => [...prev, newCat]);
-  };
+  const handleAddCategory = useCallback(
+    (categoryData: Omit<Category, 'id' | 'createdAt'>) => {
+      const newCat: Category = {
+        ...categoryData,
+        id: 'cat-' + Date.now(),
+        createdAt: new Date().toISOString(),
+      };
+      setCategories((prev) => [...prev, newCat]);
+    },
+    []
+  );
 
-  const handleUpdateCategory = (updatedCat: Category) => {
+  const handleUpdateCategory = useCallback((updatedCat: Category) => {
     setCategories((prev) => prev.map((c) => (c.id === updatedCat.id ? updatedCat : c)));
-  };
+  }, []);
 
-  const handleDeleteCategory = (categoryId: string) => {
+  const handleDeleteCategory = useCallback((categoryId: string) => {
     setCategories((prev) => prev.filter((c) => c.id !== categoryId));
-  };
+  }, []);
 
   // Bank Management Handlers
-  const handleAddBank = (bank: Omit<BankAccount, 'id' | 'createdAt'>) => {
-    const newBank: BankAccount = {
-      ...bank,
-      id: 'bank-' + Date.now(),
-      createdAt: Date.now(),
-    };
-    setBankAccounts((prev) => [...prev, newBank]);
-  };
+  const handleAddBank = useCallback(
+    (bank: Omit<BankAccount, 'id' | 'createdAt'>) => {
+      const newBank: BankAccount = {
+        ...bank,
+        id: 'bank-' + Date.now(),
+        createdAt: Date.now(),
+      };
+      setBankAccounts((prev) => [...prev, newBank]);
+    },
+    []
+  );
 
-  const handleUpdateBank = (updatedBank: BankAccount) => {
+  const handleUpdateBank = useCallback((updatedBank: BankAccount) => {
     setBankAccounts((prev) => prev.map((b) => (b.id === updatedBank.id ? updatedBank : b)));
-  };
+  }, []);
 
-  const handleDeleteBank = (bankId: string) => {
+  const handleDeleteBank = useCallback((bankId: string) => {
     setBankAccounts((prev) => prev.filter((b) => b.id !== bankId));
-  };
+  }, []);
 
   // 6. Settings & Data Restore
-  const handleUpdateSettings = (newPartial: Partial<UserSettings>) => {
+  const handleUpdateSettings = useCallback((newPartial: Partial<UserSettings>) => {
     setSettings((prev) => ({ ...prev, ...newPartial }));
-  };
+  }, []);
 
-  const handleResetData = () => {
+  const handleResetData = useCallback(() => {
     setExpenses([]);
-  };
+  }, []);
 
-  const handleLoadSampleData = () => {
-    // Generate empty data based on our previous logic change
+  const handleLoadSampleData = useCallback(() => {
     setExpenses(generateSampleExpenses());
     setCategories(DEFAULT_CATEGORIES);
-  };
+  }, []);
 
-  const handleRestoreData = (backup: { expenses: Expense[]; categories?: Category[]; bankAccounts?: BankAccount[] }) => {
+  const handleRestoreData = useCallback((backup: { expenses: Expense[]; categories?: Category[]; bankAccounts?: BankAccount[] }) => {
     if (backup.expenses) setExpenses(backup.expenses);
     if (backup.categories && backup.categories.length > 0) setCategories(backup.categories);
     if (backup.bankAccounts) setBankAccounts(backup.bankAccounts);
-  };
+  }, []);
 
   // Navigation Items for Top Header Bar
   const navTabs: { id: ActiveTab; label: string; icon: React.ElementType }[] = [

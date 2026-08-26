@@ -107,7 +107,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <form onSubmit={handleSaveBudgets} className="space-y-4 pt-4 border-t border-[#1a1a1a]">
             <div className="grid grid-cols-1 gap-4">
               <div>
-                <label className="block text-[10px] uppercase tracking-wider font-semibold text-[#e5e5e5]/60 mb-1">
+                <label htmlFor="settings-total-budget-input" className="block text-[10px] uppercase tracking-wider font-semibold text-[#e5e5e5]/60 mb-1">
                   Total Budget ({settings.currencySymbol})
                 </label>
                 <input

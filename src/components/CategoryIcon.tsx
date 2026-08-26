@@ -52,9 +52,9 @@ export const AVAILABLE_COLORS = [
   '#64748b', // Slate
 ];
 
-export const CategoryIcon: React.FC<CategoryIconProps> = ({ name, className = 'w-5 h-5', size, color }) => {
+export const CategoryIcon: React.FC<CategoryIconProps> = React.memo(({ name, className = 'w-5 h-5', size, color }) => {
   // Access dynamically from LucideIcons
   const IconComponent = (LucideIcons as unknown as Record<string, React.ElementType>)[name] || LucideIcons.Folder;
 
-  return <IconComponent className={className} size={size} style={color ? { color } : undefined} />;
-};
+  return <IconComponent className={className} size={size} style={color ? { color } : undefined} aria-hidden="true" />;
+});
