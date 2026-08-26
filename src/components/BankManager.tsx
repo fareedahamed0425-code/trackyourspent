@@ -218,7 +218,7 @@ export function BankManager({
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-[#1c1c1e] border border-white/10 rounded-3xl p-6 sm:p-8 w-full max-w-md">
             <h2 className="text-2xl font-bold text-white mb-6">Add Bank Account</h2>
-            <form onSubmit={handleCreateBank} className="space-y-4">
+            <form onSubmit={handleAddBank} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-2">Bank Name</label>
                 <input 

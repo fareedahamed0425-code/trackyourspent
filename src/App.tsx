@@ -13,6 +13,9 @@ import {
   Wallet,
   Sparkles,
   LogOut,
+  Github,
+  Globe,
+  Bot
 } from 'lucide-react';
 import { Category, Expense, PaymentMethod, UserSettings, BankAccount } from './types';
 import {
@@ -32,6 +35,7 @@ import { SettingsView } from './components/SettingsView';
 import { ExpenseModal } from './components/ExpenseModal';
 import { LoginView } from './components/LoginView';
 import { BankManager } from './components/BankManager';
+import { AIAdvisorView } from './components/AIAdvisorView';
 
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { onAuthStateChanged, User, signOut } from 'firebase/auth';
@@ -70,7 +74,6 @@ export default function App() {
       setUser(currentUser);
       if (currentUser) {
         // Fetch data from Firestore
-        let fetchSuccess = false;
         try {
           const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
           if (userDoc.exists()) {
@@ -107,13 +110,13 @@ export default function App() {
               setSettings(DEFAULT_SETTINGS);
             }
           }
-          fetchSuccess = true;
         } catch (e: any) {
           console.error("Error fetching user data", e);
-          alert('Failed to load your data from the cloud: ' + e.message);
-        }
-        
-        if (fetchSuccess) {
+          alert('Failed to load your data from the cloud: ' + e.message + '\nContinuing with local defaults.');
+          setExpenses([]);
+          setCategories(DEFAULT_CATEGORIES);
+          setSettings(DEFAULT_SETTINGS);
+        } finally {
           setDataLoaded(true);
         }
       } else {
@@ -304,15 +307,17 @@ export default function App() {
   };
 
   // Navigation Items for Top Header Bar
+  // Navigation Items for Top Header Bar
   const navTabs: { id: string; label: string; icon: React.ElementType }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'daily', label: 'Day-Wise', icon: CalendarDays },
     { id: 'categories', label: 'Categories', icon: FolderTree },
-    { id: 'banks', label: 'Bank Sync', icon: Wallet },
+    { id: 'banks', label: 'Banks', icon: Wallet },
     { id: 'calculator', label: 'Auto-Calc', icon: Calculator },
     { id: 'history', label: 'History', icon: History },
-    { id: 'export', label: 'Download', icon: Download },
+    { id: 'export', label: 'Export', icon: Download },
     { id: 'settings', label: 'Settings', icon: Settings },
+    { id: 'ai-advisor', label: 'AI Advisor', icon: Bot },
   ];
 
   if (authLoading) {
@@ -336,32 +341,32 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-[#e5e5e5] flex flex-col antialiased selection:bg-[#c4b5a1] selection:text-[#0a0a0a]">
+    <div className="min-h-screen bg-[#0a0a0a] text-[#e5e5e5] flex flex-col antialiased overflow-x-hidden w-full max-w-full selection:bg-[#c4b5a1] selection:text-[#0a0a0a]">
       {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-30 bg-[#0a0a0a]/95 backdrop-blur-md border-b border-[#1a1a1a]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+      <header className="sticky top-0 z-30 bg-[#0a0a0a]/95 backdrop-blur-md border-b border-[#1a1a1a] w-full">
+        <div className="w-full max-w-7xl mx-auto px-3 sm:px-5 lg:px-6 h-18 flex items-center justify-between gap-2 sm:gap-3">
           {/* Logo & Brand */}
           <div
             onClick={() => setActiveTab('dashboard')}
-            className="flex items-center gap-3 cursor-pointer select-none group"
+            className="flex items-center gap-2.5 cursor-pointer select-none group shrink-0"
           >
-            <div className="w-10 h-10 rounded-xl bg-[#141414] border border-[#262626] text-[#c4b5a1] flex items-center justify-center group-hover:border-[#c4b5a1] transition-colors">
-              <Compass className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-xl bg-[#141414] border border-[#262626] text-[#c4b5a1] flex items-center justify-center group-hover:border-[#c4b5a1] transition-colors">
+              <Compass className="w-4.5 h-4.5" />
             </div>
             <div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl sm:text-3xl font-serif italic text-[#c4b5a1] tracking-tight">
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-xl sm:text-2xl font-serif italic text-[#c4b5a1] tracking-tight">
                   trackyourspent
                 </span>
               </div>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-[#e5e5e5]/40 mt-0.5">
-                Personal Expense Architect
+              <p className="text-[9px] uppercase tracking-[0.2em] text-[#e5e5e5]/40 -mt-0.5">
+                Expense Architect
               </p>
             </div>
           </div>
 
           {/* Desktop Navigation Tabs */}
-          <nav className="hidden md:flex items-center gap-1 bg-[#111111] p-1.5 rounded-xl border border-[#222222]">
+          <nav className="hidden lg:flex items-center gap-0.5 bg-[#111111] p-1 rounded-xl border border-[#222222] shrink-0">
             {navTabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -370,7 +375,7 @@ export default function App() {
                   key={tab.id}
                   id={`nav-tab-${tab.id}`}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`px-3.5 py-2 rounded-lg text-[11px] uppercase tracking-wider font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  className={`px-2.5 py-1.5 rounded-lg text-[10px] xl:text-[11px] uppercase tracking-wider font-semibold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
                     isActive
                       ? 'bg-[#c4b5a1] text-[#0a0a0a] shadow-xs'
                       : 'text-[#e5e5e5]/60 hover:text-white hover:bg-[#1a1a1a]'
@@ -384,28 +389,29 @@ export default function App() {
           </nav>
 
           {/* Quick Header Actions */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               onClick={() => signOut(auth)}
-              className="hidden md:flex items-center gap-2 px-3 py-2.5 hover:bg-rose-950/30 text-rose-300 rounded-lg text-[11px] font-bold uppercase tracking-widest transition-all cursor-pointer"
+              title="Sign Out"
+              className="flex items-center gap-1.5 px-2.5 py-2 hover:bg-rose-950/30 text-rose-300 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>Exit</span>
+              <span className="hidden sm:inline">Exit</span>
             </button>
             <button
               id="header-quick-add-btn"
               onClick={() => handleOpenAddExpense()}
-              className="flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-[#c4b5a1] hover:bg-[#d8ccbc] active:scale-95 text-[#0a0a0a] rounded-lg text-[11px] font-bold uppercase tracking-widest transition-all cursor-pointer shadow-sm"
+              className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-[#c4b5a1] hover:bg-[#d8ccbc] active:scale-95 text-[#0a0a0a] rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm shrink-0"
             >
               <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span className="hidden sm:inline">Add Expense</span>
+              <span>Add Expense</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* Mobile Horizontal Navigation Scroll */}
-      <div className="md:hidden bg-[#0d0d0d] border-b border-[#1a1a1a] px-4 py-2 overflow-x-auto flex items-center gap-1.5 scrollbar-none">
+      {/* Sub-Header Horizontal Navigation Bar (for screens below LG) */}
+      <div className="lg:hidden bg-[#0d0d0d] border-b border-[#1a1a1a] px-3 py-2 overflow-x-auto flex items-center gap-1.5 scrollbar-none w-full">
         {navTabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -413,7 +419,7 @@ export default function App() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-colors shrink-0 ${
                 isActive
                   ? 'bg-[#c4b5a1] text-[#0a0a0a] shadow-xs'
                   : 'bg-[#141414] text-[#e5e5e5]/70 hover:bg-[#1f1f1f] border border-[#222222]'
@@ -584,6 +590,21 @@ export default function App() {
               </motion.div>
             } />
 
+            <Route path="/ai-advisor" element={
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.18 }}
+              >
+                <AIAdvisorView
+                  expenses={expenses}
+                  categories={categories}
+                  settings={settings}
+                />
+              </motion.div>
+            } />
+
             {/* Catch-all route for unknown tabs */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
@@ -591,15 +612,46 @@ export default function App() {
       </main>
 
       {/* Sophisticated Dark Global Status Footer */}
-      <footer className="px-6 py-4 border-t border-[#1a1a1a] bg-[#050505] text-[10px] tracking-[0.2em] uppercase text-[#e5e5e5]/40 flex flex-col sm:flex-row justify-between items-center gap-2">
-        <div className="flex items-center gap-6">
-          <span>DAY-WISE CALCULATION ENGINE</span>
-          <span className="hidden sm:inline opacity-30">•</span>
-          <span>CLOUD-SYNCED FIREBASE ARCHITECTURE</span>
+      <footer className="mt-8 px-6 py-10 border-t border-[#1a1a1a] bg-[#050505] flex flex-col items-center gap-8">
+        <div className="flex flex-col items-center gap-6">
+          <div className="flex items-center gap-4 text-[#e5e5e5]/60 text-[13px] font-medium">
+            <div className="w-8 h-px bg-gradient-to-r from-transparent to-[#262626]"></div>
+            <span>Developed by <span className="text-white font-bold tracking-wide text-[14px]">B A Fareed Ahamed</span></span>
+            <div className="w-8 h-px bg-gradient-to-l from-transparent to-[#262626]"></div>
+          </div>
+          
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+            <a
+              href="https://github.com/fareedahamed0425-code"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2.5 px-6 py-3 bg-[#111111] hover:bg-[#1a1a1a] active:scale-95 border border-[#222222] rounded-2xl text-[11px] font-bold tracking-[0.15em] text-[#e5e5e5] uppercase transition-all"
+            >
+              <Github className="w-4 h-4" />
+              <span>Github</span>
+            </a>
+            <a
+              href="https://bafareedahamedportfolio.netlify.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2.5 px-6 py-3 bg-[#111111] hover:bg-[#1a1a1a] active:scale-95 border border-[#222222] rounded-2xl text-[11px] font-bold tracking-[0.15em] text-[#e5e5e5] uppercase transition-all"
+            >
+              <Globe className="w-4 h-4" />
+              <span>Portfolio</span>
+            </a>
+          </div>
         </div>
-        <div className="flex items-center gap-2 text-[#c4b5a1]">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#c4b5a1] animate-pulse" />
-          <span>ACTIVE EXPENSE LEDGER</span>
+        
+        <div className="w-full max-w-7xl pt-8 border-t border-[#1a1a1a]/50 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] tracking-[0.2em] uppercase text-[#e5e5e5]/40">
+          <div className="flex flex-wrap justify-center sm:justify-start items-center gap-4 sm:gap-6 text-center sm:text-left">
+            <span>DAY-WISE CALCULATION ENGINE</span>
+            <span className="hidden sm:inline opacity-30">•</span>
+            <span>CLOUD-SYNCED FIREBASE ARCHITECTURE</span>
+          </div>
+          <div className="flex items-center gap-2 text-[#c4b5a1]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#c4b5a1] animate-pulse" />
+            <span>ACTIVE EXPENSE LEDGER</span>
+          </div>
         </div>
       </footer>
 

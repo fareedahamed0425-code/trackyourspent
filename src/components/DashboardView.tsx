@@ -282,7 +282,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="space-y-4">
                 {sortedCategories.map(([catId, amount]) => {
                   const cat = categoryMap.get(catId);
-                  const pct = monthSpent > 0 ? Math.round((amount / monthSpent) * 100) : 0;
+                  const pct = totalSpent > 0 ? Math.round((amount / totalSpent) * 100) : 0;
 
                   return (
                     <div key={catId} className="space-y-1.5">

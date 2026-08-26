@@ -25,6 +25,7 @@
 - 📊 **Day-Wise Ledger**: Track your cashflow and expenses day by day effortlessly.
 - 🧮 **Auto-Calculator**: Quickly calculate split bills or tips and record them instantly.
 - 🗂️ **Category Manager**: Organize your spending into intuitive custom categories.
+- 🤖 **AI Advisor**: Get intelligent financial analysis and advice powered by NVIDIA Nemotron.
 
 ## 🚀 Getting Started
 
@@ -48,12 +49,18 @@ Make sure you have Node.js installed on your machine.
    npm install
    ```
 
-4. **Run the development server:**
+4. **Environment Variables:**
+   Create a `.env` file in the root directory and add your NVIDIA API key (if using the AI Advisor feature):
+   ```env
+   NVIDIA_API_KEY="your-api-key-here"
+   ```
+
+5. **Run the development server:**
    ```bash
    npm run dev
    ```
 
-5. **Open your browser:**
+6. **Open your browser:**
    Navigate to `http://localhost:3000` to see the application in action.
 
 ## 🛠️ Tech Stack

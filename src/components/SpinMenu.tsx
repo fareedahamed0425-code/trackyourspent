@@ -13,6 +13,7 @@ import {
   X,
   Move,
   RotateCw,
+  Bot
 } from 'lucide-react';
 import { ActiveTab, UserSettings } from '../types';
 
@@ -51,6 +52,7 @@ export const SpinMenu: React.FC<SpinMenuProps> = ({
     { id: 'history', label: 'Full History', icon: History, color: '#ec4899' },
     { id: 'export', label: 'Download / Export', icon: Download, color: '#06b6d4' },
     { id: 'settings', label: 'Preferences', icon: Settings, color: '#64748b' },
+    { id: 'ai-advisor', label: 'AI Advisor', icon: Bot, color: '#10b981' },
   ];
 
   const handleToggle = () => {
