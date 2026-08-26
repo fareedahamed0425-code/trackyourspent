@@ -342,15 +342,27 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-[#e5e5e5] flex flex-col antialiased overflow-x-hidden w-full max-w-full selection:bg-[#c4b5a1] selection:text-[#0a0a0a]">
+      {/* Skip to Main Content Link for Keyboard / Screen Readers */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-[#c4b5a1] focus:text-[#0a0a0a] focus:rounded-lg focus:font-bold focus:shadow-2xl focus:outline-none"
+      >
+        Skip to main content
+      </a>
+
       {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-30 bg-[#0a0a0a]/95 backdrop-blur-md border-b border-[#1a1a1a] w-full">
+      <header role="banner" className="sticky top-0 z-30 bg-[#0a0a0a]/95 backdrop-blur-md border-b border-[#1a1a1a] w-full">
         <div className="w-full max-w-7xl mx-auto px-3 sm:px-5 lg:px-6 h-18 flex items-center justify-between gap-2 sm:gap-3">
           {/* Logo & Brand */}
           <div
             onClick={() => setActiveTab('dashboard')}
-            className="flex items-center gap-2.5 cursor-pointer select-none group shrink-0"
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setActiveTab('dashboard'); }}
+            aria-label="TrackYourSpent Home Dashboard"
+            className="flex items-center gap-2.5 cursor-pointer select-none group shrink-0 focus-visible:ring-2 focus-visible:ring-[#c4b5a1] focus-visible:outline-none rounded-xl"
           >
-            <div className="w-9 h-9 rounded-xl bg-[#141414] border border-[#262626] text-[#c4b5a1] flex items-center justify-center group-hover:border-[#c4b5a1] transition-colors">
+            <div className="w-9 h-9 rounded-xl bg-[#141414] border border-[#262626] text-[#c4b5a1] flex items-center justify-center group-hover:border-[#c4b5a1] transition-colors" aria-hidden="true">
               <Compass className="w-4.5 h-4.5" />
             </div>
             <div>
@@ -366,7 +378,7 @@ export default function App() {
           </div>
 
           {/* Desktop Navigation Tabs */}
-          <nav className="hidden lg:flex items-center gap-0.5 bg-[#111111] p-1 rounded-xl border border-[#222222] shrink-0">
+          <nav aria-label="Main Desktop Navigation" role="tablist" className="hidden lg:flex items-center gap-0.5 bg-[#111111] p-1 rounded-xl border border-[#222222] shrink-0">
             {navTabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -374,14 +386,18 @@ export default function App() {
                 <button
                   key={tab.id}
                   id={`nav-tab-${tab.id}`}
+                  role="tab"
+                  type="button"
+                  aria-selected={isActive}
+                  aria-label={`${tab.label} View`}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`px-2.5 py-1.5 rounded-lg text-[10px] xl:text-[11px] uppercase tracking-wider font-semibold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+                  className={`px-2.5 py-1.5 rounded-lg text-[10px] xl:text-[11px] uppercase tracking-wider font-semibold flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap focus-visible:ring-2 focus-visible:ring-[#c4b5a1] focus-visible:outline-none ${
                     isActive
                       ? 'bg-[#c4b5a1] text-[#0a0a0a] shadow-xs'
                       : 'text-[#e5e5e5]/60 hover:text-white hover:bg-[#1a1a1a]'
                   }`}
                 >
-                  <Icon className="w-3.5 h-3.5" />
+                  <Icon className="w-3.5 h-3.5" aria-hidden="true" />
                   <span>{tab.label}</span>
                 </button>
               );
@@ -391,19 +407,23 @@ export default function App() {
           {/* Quick Header Actions */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
+              type="button"
               onClick={() => signOut(auth)}
               title="Sign Out"
-              className="flex items-center gap-1.5 px-2.5 py-2 hover:bg-rose-950/30 text-rose-300 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer"
+              aria-label="Sign Out of Application"
+              className="flex items-center gap-1.5 px-2.5 py-2 hover:bg-rose-950/30 text-rose-300 rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:outline-none"
             >
-              <LogOut className="w-3.5 h-3.5" />
+              <LogOut className="w-3.5 h-3.5" aria-hidden="true" />
               <span className="hidden sm:inline">Exit</span>
             </button>
             <button
               id="header-quick-add-btn"
+              type="button"
+              aria-label="Add a New Expense"
               onClick={() => handleOpenAddExpense()}
-              className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-[#c4b5a1] hover:bg-[#d8ccbc] active:scale-95 text-[#0a0a0a] rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm shrink-0"
+              className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-[#c4b5a1] hover:bg-[#d8ccbc] active:scale-95 text-[#0a0a0a] rounded-lg text-[10px] sm:text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm shrink-0 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
             >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" aria-hidden="true" />
               <span>Add Expense</span>
             </button>
           </div>
@@ -411,37 +431,42 @@ export default function App() {
       </header>
 
       {/* Sub-Header Horizontal Navigation Bar (for screens below LG) */}
-      <div className="lg:hidden bg-[#0d0d0d] border-b border-[#1a1a1a] px-3 py-2 overflow-x-auto flex items-center gap-1.5 scrollbar-none w-full">
+      <nav aria-label="Mobile Navigation" className="lg:hidden bg-[#0d0d0d] border-b border-[#1a1a1a] px-3 py-2 overflow-x-auto flex items-center gap-1.5 scrollbar-none w-full">
         {navTabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
+              type="button"
+              aria-selected={isActive}
+              aria-label={`${tab.label} View`}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-colors shrink-0 ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-colors shrink-0 focus-visible:ring-2 focus-visible:ring-[#c4b5a1] focus-visible:outline-none ${
                 isActive
                   ? 'bg-[#c4b5a1] text-[#0a0a0a] shadow-xs'
                   : 'bg-[#141414] text-[#e5e5e5]/70 hover:bg-[#1f1f1f] border border-[#222222]'
               }`}
             >
-              <Icon className="w-3.5 h-3.5" />
+              <Icon className="w-3.5 h-3.5" aria-hidden="true" />
               <span>{tab.label}</span>
             </button>
           );
         })}
-        <div className="w-[1px] h-6 bg-[#222222] mx-1 shrink-0" />
+        <div className="w-[1px] h-6 bg-[#222222] mx-1 shrink-0" aria-hidden="true" />
         <button
+          type="button"
+          aria-label="Exit Application"
           onClick={() => signOut(auth)}
-          className="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-colors bg-rose-950/20 text-rose-400 hover:bg-rose-950/40 border border-rose-900/30 shrink-0"
+          className="px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap flex items-center gap-1.5 transition-colors bg-rose-950/20 text-rose-400 hover:bg-rose-950/40 border border-rose-900/30 shrink-0 focus-visible:ring-2 focus-visible:ring-rose-400 focus-visible:outline-none"
         >
-          <LogOut className="w-3.5 h-3.5" />
+          <LogOut className="w-3.5 h-3.5" aria-hidden="true" />
           <span>Exit</span>
         </button>
-      </div>
+      </nav>
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main id="main-content" role="main" tabIndex={-1} className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 focus:outline-none">
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />

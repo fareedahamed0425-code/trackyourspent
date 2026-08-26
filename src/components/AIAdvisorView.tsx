@@ -302,7 +302,12 @@ ${JSON.stringify(expenses.map(e => ({ title: e.title, amount: e.amount, date: e.
 
       <div className="flex-1 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden flex flex-col">
         {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+        <div
+          role="log"
+          aria-live="polite"
+          aria-label="Chat messages history"
+          className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
+        >
           {messages.map((msg) => (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -311,7 +316,7 @@ ${JSON.stringify(expenses.map(e => ({ title: e.title, amount: e.amount, date: e.
               className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {msg.role === 'assistant' && (
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30" aria-hidden="true">
                   <Sparkles size={20} />
                 </div>
               )}
@@ -322,14 +327,14 @@ ${JSON.stringify(expenses.map(e => ({ title: e.title, amount: e.amount, date: e.
                   : 'bg-[#1a1a1c] border border-white/10 text-gray-200 rounded-tl-sm'
               }`}>
                 {msg.role === 'assistant' && !msg.content && msg.isStreaming ? (
-                  <div className="flex items-center gap-2 text-emerald-400/70">
-                    <Loader2 size={16} className="animate-spin" />
+                  <div className="flex items-center gap-2 text-emerald-400/70" role="status">
+                    <Loader2 size={16} className="animate-spin" aria-hidden="true" />
                     <span className="text-sm">Thinking...</span>
                   </div>
                 ) : msg.role === 'assistant' ? (
                   <div className="text-sm">
                     <FormattedMessage content={msg.content} />
-                    {msg.isStreaming && <span className="inline-block w-2 h-4 ml-1 bg-emerald-400 animate-pulse align-middle" />}
+                    {msg.isStreaming && <span className="inline-block w-2 h-4 ml-1 bg-emerald-400 animate-pulse align-middle" aria-hidden="true" />}
                   </div>
                 ) : (
                   <div className="whitespace-pre-wrap leading-relaxed text-sm">
@@ -339,7 +344,7 @@ ${JSON.stringify(expenses.map(e => ({ title: e.title, amount: e.amount, date: e.
               </div>
 
               {msg.role === 'user' && (
-                <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/30">
+                <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/30" aria-hidden="true">
                   <User size={20} />
                 </div>
               )}
@@ -351,20 +356,27 @@ ${JSON.stringify(expenses.map(e => ({ title: e.title, amount: e.amount, date: e.
         {/* Input Area */}
         <div className="p-4 bg-[#141416] border-t border-white/10">
           <form onSubmit={handleSubmit} className="relative flex items-center">
+            <label htmlFor="ai-advisor-prompt-input" className="sr-only">
+              Ask AI Financial Advisor
+            </label>
             <input
+              id="ai-advisor-prompt-input"
+              name="prompt"
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask for advice on your budget, spending trends, or savings..."
               disabled={isLoading}
-              className="w-full bg-[#1c1c1e] border border-white/10 rounded-2xl pl-5 pr-14 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-colors disabled:opacity-50"
+              aria-label="Ask for advice on your budget, spending trends, or savings"
+              className="w-full bg-[#1c1c1e] border border-white/10 rounded-2xl pl-5 pr-14 py-4 text-white focus:outline-none focus:border-emerald-500/50 transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-emerald-400"
             />
             <button
               type="submit"
               disabled={!input.trim() || isLoading}
-              className="absolute right-2 p-2.5 bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-700 text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              aria-label="Send query to AI Advisor"
+              className="absolute right-2 p-2.5 bg-emerald-500 hover:bg-emerald-600 disabled:bg-gray-700 text-white rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
             >
-              {isLoading ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
+              {isLoading ? <Loader2 size={20} className="animate-spin" aria-hidden="true" /> : <Send size={20} aria-hidden="true" />}
             </button>
           </form>
           <div className="text-center mt-3">
