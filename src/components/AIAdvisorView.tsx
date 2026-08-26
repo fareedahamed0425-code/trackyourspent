@@ -278,11 +278,12 @@ ${JSON.stringify(expenses.map(e => ({ title: e.title, amount: e.amount, date: e.
             : msg
         ));
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("AI Advisor Error:", error);
+      const errMsg = error instanceof Error ? error.message : "Unable to process request. Please check your connection.";
       setMessages(prev => prev.map(msg => 
         msg.id === assistantMessageId 
-          ? { ...msg, content: `Error: ${error.message || "Unable to process request. Please check your connection."}`, isStreaming: false }
+          ? { ...msg, content: `Error: ${errMsg}`, isStreaming: false }
           : msg
       ));
     } finally {

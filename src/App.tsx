@@ -110,9 +110,10 @@ export default function App() {
               setSettings(DEFAULT_SETTINGS);
             }
           }
-        } catch (e: any) {
+        } catch (e: unknown) {
           console.error("Error fetching user data", e);
-          alert('Failed to load your data from the cloud: ' + e.message + '\nContinuing with local defaults.');
+          const msg = e instanceof Error ? e.message : 'Unknown error';
+          alert('Failed to load your data from the cloud: ' + msg + '\nContinuing with local defaults.');
           setExpenses([]);
           setCategories(DEFAULT_CATEGORIES);
           setSettings(DEFAULT_SETTINGS);
@@ -139,10 +140,11 @@ export default function App() {
           bankAccounts
         }));
         await setDoc(doc(db, 'users', user.uid), payload, { merge: true });
-      } catch (e: any) {
+      } catch (e: unknown) {
         console.error('Failed to save to cloud', e);
+        const msg = e instanceof Error ? e.message : '';
         // Only alert if it's a permission issue or quota issue to not spam the user
-        if (e.message?.includes('permission')) {
+        if (msg.includes('permission')) {
           alert('Save failed: Database permissions error.');
         }
       }

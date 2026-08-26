@@ -86,7 +86,9 @@ export function StatementReconciler({ bankId, categories, settings, onSaveExpens
       const content = await page.getTextContent();
       
       // A very basic heuristic: join all strings with spaces
-      const fullText = content.items.map((item: any) => item.str).join(' ');
+      const fullText = content.items
+        .map((item) => (typeof item === 'object' && item && 'str' in item ? String((item as { str: unknown }).str) : ''))
+        .join(' ');
       
       // Look for patterns like DD/MM/YYYY or DD-MMM followed by text and then a number
       // This is a naive split by common date formats to find lines.

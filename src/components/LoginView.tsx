@@ -27,8 +27,9 @@ export const LoginView: React.FC = () => {
       } else {
         await createUserWithEmailAndPassword(auth, email, password);
       }
-    } catch (err: any) {
-      setError(err.message || 'An error occurred during authentication.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'An error occurred during authentication.';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -40,8 +41,9 @@ export const LoginView: React.FC = () => {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-    } catch (err: any) {
-      setError(err.message || 'An error occurred during Google Sign-In.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'An error occurred during Google Sign-In.';
+      setError(message);
     } finally {
       setLoading(false);
     }
