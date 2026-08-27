@@ -204,7 +204,7 @@ ${JSON.stringify(expenses.map(e => ({ title: e.title, amount: e.amount, date: e.
           headers: requestHeaders,
           body: JSON.stringify(requestPayload)
         });
-        if (!response.ok && response.status === 404) {
+        if (!response.ok) {
           response = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
             method: 'POST',
             headers: requestHeaders,
